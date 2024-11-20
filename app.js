@@ -7,10 +7,6 @@ const app = express();
 // Sử dụng CORS middleware
 app.use(cors()); // Cho phép tất cả các domain truy cập API của bạn
 
-// Hoặc nếu bạn muốn giới hạn chỉ cho phép frontend từ localhost:3000
-// app.use(cors({ origin: 'http://localhost:3000' }));
-
-// Thiết lập các middleware khác, ví dụ: cho phép xử lý JSON
 app.use(express.json());
 
 // Sử dụng các route API

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Để điều hướng tới trang UpdateCustomer
+import { useNavigate } from 'react-router-dom';
+import {FaEdit, FaTrash} from 'react-icons/fa';
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
@@ -73,8 +74,8 @@ const CustomersList = () => {
                   <td>{customer.SDT}</td>
                   <td>{customer.Email}</td>
                   <td>
-                    <button className="btn btn-warning mr-2" onClick={() => updateCustomer(customer.Ma_khach_hang)}>Cập nhật</button>
-                    <button className="btn btn-danger" onClick={() => deleteCustomer(customer.Ma_khach_hang)}>Xóa</button>
+                    <button className="btn btn-warning mr-2" style={{marginRight:'10px'}} onClick={() => updateCustomer(customer.Ma_khach_hang)}><FaEdit/></button>
+                    <button className="btn btn-danger" onClick={() => deleteCustomer(customer.Ma_khach_hang)}><FaTrash/></button>
                   </td>
                 </tr>
               ))

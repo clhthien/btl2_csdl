@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import UpdateCustomer from './components/UpdateCustomer';
-// import Employees from './pages/Employees';
+import UpdateEmployee from './components/UpdateEmployee';
+import Employees from './pages/Employees';
 // import Orders from './pages/Orders';
 import Navbar from './components/Navbar';
 
@@ -17,7 +18,8 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
             <Route path='/customers/update/:id' element={<UpdateCustomer />}/>
-            {/* <Route path="/employees" element={<Employees />} /> */}
+            <Route path="/employees" element={<Employees />} />
+            <Route path='/employees/update/:id' element={<UpdateEmployee/>}/>
             {/* <Route path="/orders" element={<Orders />} /> */}
           </Routes>
         </div>

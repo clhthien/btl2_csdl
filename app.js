@@ -9,6 +9,8 @@ const dondathangRoutes = require('./routes/dondathang');
 
 const khohangRoutes = require('./routes/khohang');
 
+const kienhangRoutes = require ('./routes/kienhang');
+
 const app = express();
 
 // Sử dụng CORS middleware
@@ -23,7 +25,9 @@ app.use('/api/nhanvien', nhanvienRoutes);
 
 app.use('/api/dondathang', dondathangRoutes);
 
-app.use('/api/khohang', khohangRoutes)
+app.use('/api/khohang', khohangRoutes);
+
+app.use('/api/kienhang', kienhangRoutes);
 
 // Khởi động server
 const PORT = 3001;

@@ -1,7 +1,11 @@
 const express = require('express');
 const cors = require('cors'); // Import cors
+
 const khachhangRoutes = require('./routes/khachhang');
+
 const nhanvienRoutes = require('./routes/nhanvien');
+
+const dondathangRoutes = require('./routes/dondathang');
 
 const app = express();
 
@@ -12,7 +16,10 @@ app.use(express.json());
 
 // Sử dụng các route API
 app.use('/api/khachhang', khachhangRoutes);
+
 app.use('/api/nhanvien', nhanvienRoutes);
+
+app.use('/api/dondathang', dondathangRoutes);
 
 // Khởi động server
 const PORT = 3001;

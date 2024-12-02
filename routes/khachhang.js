@@ -8,18 +8,28 @@ const validateEmail = (email) => {
   return regex.test(email);
 };
 
+const validatePhoneNumber = (SDT) => 
+{
+  const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra 10 chữ số
+  return regex.test(SDT);
+}
 // Lấy tất cả khách hàng
 router.get('/', async (req, res) => {
   const query = 'SELECT * FROM khach_hang';
   
   try {
-    const [results, fields] = await db.execute(query);
-    res.json(results);
+    const [results] = await db.execute(query);  // Thực thi truy vấn
+    if (results.length > 0) {
+      res.json(results);  // Trả về tất cả đơn hàng
+    } else {
+      res.status(404).json({ message: 'Không có đơn hàng nào!' });
+    }
   } catch (err) {
     console.error('Lỗi truy vấn:', err);
-    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn cơ sở dữ liệu.' });
+    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn đơn hàng.' });
   }
 });
+  //Lay khach hang theo id
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const query = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
@@ -41,39 +51,47 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email } = req.body;
 
+  // Kiểm tra xem có thiếu thông tin nào không
   if (!Ma_khach_hang || !Ho_ten_dem || !Ten || !SDT || !Email) {
     return res.status(400).json({ message: 'Thiếu thông tin khách hàng!' });
   }
 
+  // Kiểm tra email và số điện thoại hợp lệ
   if (!validateEmail(Email)) {
     return res.status(400).json({ message: 'Email không hợp lệ!' });
   }
 
-  const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
+  if (!validatePhoneNumber(SDT)) {
+    return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
+  }
+
+  // Kiểm tra xem Mã khách hàng, Số điện thoại và Email có tồn tại không
+  const checkQuery = `
+    SELECT * FROM khach_hang WHERE Ma_khach_hang = ? OR SDT = ? OR Email = ?
+  `;
+  
   try {
-    const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
-    if (existingMaKH.length > 0) {
-      return res.status(400).json({ message: 'Mã khách hàng đã tồn tại!' });
+    const [existingData] = await db.execute(checkQuery, [Ma_khach_hang, SDT, Email]);
+
+    // Kiểm tra nếu có khách hàng trùng mã khách hàng, số điện thoại hoặc email
+    if (existingData.length > 0) {
+      let message = '';
+      if (existingData.some(item => item.Ma_khach_hang === Ma_khach_hang)) {
+        message = 'Mã khách hàng đã tồn tại!';
+      } else if (existingData.some(item => item.SDT === SDT)) {
+        message = 'Số điện thoại đã tồn tại!';
+      } else if (existingData.some(item => item.Email === Email)) {
+        message = 'Email đã tồn tại!';
+      }
+      return res.status(400).json({ message });
     }
 
-    const checkSDTQuery = 'SELECT * FROM khach_hang WHERE SDT = ?';
-    const [existingSDT] = await db.execute(checkSDTQuery, [SDT]);
-    if (existingSDT.length > 0) {
-      return res.status(400).json({ message: 'Số điện thoại đã tồn tại!' });
-    }
-
-    const checkEmailQuery = 'SELECT * FROM khach_hang WHERE Email = ?';
-    const [existingEmail] = await db.execute(checkEmailQuery, [Email]);
-    if (existingEmail.length > 0) {
-      return res.status(400).json({ message: 'Email đã tồn tại!' });
-    }
-
-    const query = `
+    // Thêm khách hàng mới vào cơ sở dữ liệu
+    const insertQuery = `
       INSERT INTO khach_hang (Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email) 
       VALUES (?, ?, ?, ?, ?)
     `;
-
-    const [results] = await db.execute(query, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
+    const [results] = await db.execute(insertQuery, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
 
     res.status(201).json({
       message: 'Thêm khách hàng thành công!',
@@ -91,6 +109,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // Cập nhật thông tin khách hàng
 router.put('/:Ma_khach_hang', async (req, res) => {
   const { Ma_khach_hang } = req.params;
@@ -102,6 +121,9 @@ router.put('/:Ma_khach_hang', async (req, res) => {
 
   if (!validateEmail(Email)) {
     return res.status(400).json({ message: 'Email không hợp lệ!' });
+  }
+  if (!validatePhoneNumber(SDT)) {
+    return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
 
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
@@ -169,5 +191,7 @@ router.delete('/:Ma_khach_hang', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa khách hàng.' });
   }
 });
+
+
 
 module.exports = router;

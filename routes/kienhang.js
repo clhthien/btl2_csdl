@@ -37,27 +37,23 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/',async(req,res) =>
-{
-    const query = 'SELECT * FROM kien_hang';
+router.get('/', async (req, res) => {
+  const query = 'SELECT * FROM kien_hang';
 
-    try
-    {
-        const result = await db.execute(query);
-        if (results.length > 0) 
-            {
-            res.json(results);  // Trả về tất cả đơn hàng
-            } 
-            else 
-            {
-            res.status(404).json({ message: 'Không có kiện hàng nào!' });
-            }
+  try {
+    const [result] = await db.execute(query);  // Sử dụng result thay vì results
+    if (result.length > 0) {
+      res.json(result);  // Trả về tất cả kiện hàng
+    } else {
+      res.status(404).json({ message: 'Không có kiện hàng nào!' });
     }
-    catch (err) 
-    {
-        console.error('Lỗi truy vấn:', err);
-        res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn đơn hàng.' });
-    }
-})
+  } catch (err) {
+    console.error('Lỗi truy vấn:', err);
+    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn kiện hàng.' });
+  }
+});
+
 
 module.exports = router;
+
+

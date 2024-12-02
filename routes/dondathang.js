@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');  // Giả sử bạn đã cấu hình kết nối cơ sở dữ liệu ở đây
+const db = require('../config/db'); 
 
 // 1. Tạo đơn đặt hàng (POST)
 router.post('/', async (req, res) => {

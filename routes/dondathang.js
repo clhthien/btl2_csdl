@@ -11,7 +11,8 @@ const validatePhoneNumber = (SDT) =>
 router.post('/', async (req, res) => { 
   const { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
 
-  if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
+  if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) 
+  {
     return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
   }
   if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan))
@@ -20,20 +21,17 @@ router.post('/', async (req, res) => {
   }
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
-  try {
+  try 
+  {
     const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-    const [existingData] = await db.execute(query, [Ma_ddh, Ma_khach_hang]);
+    const [existingData] = await db.execute(query, [Ma_ddh]);
     if ( existingData.length > 0)
     {
       let message = '';
-      if (existingData.some(item => item.Ma_khach_hang === Ma_khach_hang)) 
-      {
-          message = 'Mã khách hàng đã tồn tại!';
-      }
-        else if (existingData.some(item => item.Ma_ddh === Ma_ddh ))
+        if (existingData.some(item => item.Ma_ddh === Ma_ddh ))
           message = 'Mã đơn hàng đã tồn tại!';
           
       return res.status(400).json({ message });
@@ -54,14 +52,16 @@ router.post('/', async (req, res) => {
         Ma_khach_hang
       }
     });
-  } catch (err) {
+  } catch (err) 
+  {
     console.error('Lỗi khi tạo đơn hàng:', err);
     res.status(500).json({ message: 'Có lỗi xảy ra khi tạo đơn hàng.' });
   }
 });
 
 // 2. Lấy thông tin đơn hàng theo mã (GET)
-router.get('/:Ma_ddh', async (req, res) => {
+router.get('/:Ma_ddh', async (req, res) => 
+{
   const { Ma_ddh } = req.params;
 
   const query = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
@@ -98,12 +98,14 @@ router.put('/:Ma_ddh', async (req, res) => {
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-
     // Kiểm tra đơn hàng có tồn tại không
     const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
-    const [existingMaDDH] = await db.execute(checkMaDDHQuery, [Ma_ddh]);
     if (existingMaDDH.length === 0) {
       return res.status(404).json({ message: 'Mã đơn hàng không tồn tại!' });
+    }
+    const [existingData] = await db.execute(query, [Ma_ddh]);
+    if ( existingData.length > 0 ) {
+      return res.status(404).json({ message: 'Mã đơn hàng đã tồn tại'});
     }
 
     // Cập nhật thông tin đơn hàng

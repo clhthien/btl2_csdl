@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db'); 
 
+const validatePhoneNumber = (SDT) => 
+  {
+    const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra 10 chữ số
+    return regex.test(SDT);
+  }
 // 1. Tạo đơn đặt hàng (POST)
 router.post('/', async (req, res) => {
   const { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
@@ -9,7 +14,10 @@ router.post('/', async (req, res) => {
   if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
     return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
   }
-
+  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan))
+  {
+    return res.status(400).json({message: 'Số điện thoại không hợp lệ!'});
+  }
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
   try {
@@ -67,7 +75,10 @@ router.put('/:Ma_ddh', async (req, res) => {
   if (!Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
     return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
   }
-
+  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan))
+  {
+    return res.status(400).json({message: 'Số điện thoại không hộp lệ!'});
+  }
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
   try {
@@ -75,7 +86,7 @@ router.put('/:Ma_ddh', async (req, res) => {
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-
+    
     // Kiểm tra đơn hàng có tồn tại không
     const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
     const [existingMaDDH] = await db.execute(checkMaDDHQuery, [Ma_ddh]);

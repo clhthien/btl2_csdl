@@ -8,7 +8,7 @@ const validatePhoneNumber = (SDT) =>
     return regex.test(SDT);
   }
 // 1. Tạo đơn đặt hàng (POST)
-router.post('/', async (req, res) => {
+router.post('/', async (req, res) => { 
   const { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
 
   if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
@@ -25,7 +25,19 @@ router.post('/', async (req, res) => {
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-
+    const [existingData] = await db.execute(query, [Ma_ddh, Ma_khach_hang]);
+    if ( existingData.length > 0)
+    {
+      let message = '';
+      if (existingData.some(item => item.Ma_khach_hang === Ma_khach_hang)) 
+      {
+          message = 'Mã khách hàng đã tồn tại!';
+      }
+        else if (existingData.some(item => item.Ma_ddh === Ma_ddh ))
+          message = 'Mã đơn hàng đã tồn tại!';
+          
+      return res.status(400).json({ message });
+    }
     // Thêm đơn đặt hàng mới
     const query = `
       INSERT INTO don_dat_hang (Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang)
@@ -86,7 +98,7 @@ router.put('/:Ma_ddh', async (req, res) => {
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-    
+
     // Kiểm tra đơn hàng có tồn tại không
     const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
     const [existingMaDDH] = await db.execute(checkMaDDHQuery, [Ma_ddh]);

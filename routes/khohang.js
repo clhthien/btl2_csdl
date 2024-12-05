@@ -13,10 +13,17 @@ router.post('/', async (req, res) => {
 
   // Kiểm tra mã kho đã tồn tại chưa
   const checkMaKhoQuery = 'SELECT * FROM kho_hang WHERE Ma_kho = ?';
-  try {
+  const checkDiaChiQuery = 'SELECT * FROM kho_hang WHERE Dia_chi = ?';
+  try 
+  {
     const [existingMaKho] = await db.execute(checkMaKhoQuery, [Ma_kho]);
     if (existingMaKho.length > 0) {
       return res.status(400).json({ message: 'Mã kho đã tồn tại!' });
+    }
+    const [existingDiaChi] = await db.execute(checkDiaChiQuery, [Ma_kho]);
+    if ( existingDiaChi.length > 0 )
+    {
+      return res.status(404).json({message: 'Địa chỉ đã được đăng kí' })
     }
 
     // Thêm kho hàng mới
@@ -41,14 +48,15 @@ router.post('/', async (req, res) => {
 });
 
 // 2. Lấy thông tin kho hàng theo mã (GET)
-router.get('/:Ma_kho', async (req, res) => {
+router.get('/:Ma_kho', async (req, res) => 
+{
   const { Ma_kho } = req.params;
 
   const query = 'SELECT * FROM kho_hang WHERE Ma_kho = ?';
 
   try {
     const [results] = await db.execute(query, [Ma_kho]);
-    if (results.length > 0) {
+    if (results.length === 0) {
       res.json(results[0]);  // Trả về kho hàng đầu tiên tìm thấy
     } else {
       res.status(404).json({ message: 'Không tìm thấy kho hàng' });
@@ -70,10 +78,16 @@ router.put('/:Ma_kho', async (req, res) => {
 
   // Kiểm tra kho hàng có tồn tại không
   const checkMaKhoQuery = 'SELECT * FROM kho_hang WHERE Ma_kho = ?';
+  const checkDiaChiQuery = 'SELECT * FROM kho_hang WHERE Dia_chi = ?';
   try {
     const [existingMaKho] = await db.execute(checkMaKhoQuery, [Ma_kho]);
-    if (existingMaKho.length === 0) {
-      return res.status(404).json({ message: 'Mã kho không tồn tại!' });
+    if (existingMaKho.length > 0) {
+      return res.status(404).json({ message: 'Mã kho đã tồn tại!' });
+    }
+    const [existingDiaChi] = await db.execute(checkDiaChiQuery, [Ma_kho]);
+    if ( existingDiaChi.length > 0 )
+    {
+      return res.status(404).json({message: 'Địa chỉ đã được đăng kí' })
     }
 
     // Cập nhật thông tin kho hàng

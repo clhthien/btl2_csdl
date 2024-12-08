@@ -1,0 +1,6 @@
+cd .\savegit\     
+cd .\btl2_csdl\
+git branch
+git add .
+git commit -m "set cái gì ghi vô đây"
+git push origin main

@@ -1,67 +1,58 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db'); 
+const db = require('../config/db');
 
-const validatePhoneNumber = (SDT) => 
-  {
-    const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra 10 chữ số
-    return regex.test(SDT);
-  }
+// Hàm kiểm tra số điện thoại hợp lệ
+const validatePhoneNumber = (SDT) => {
+  const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra 10 chữ số theo định dạng Việt Nam
+  return regex.test(SDT);
+}
 // 1. Tạo đơn đặt hàng (POST)
 router.post('/', async (req, res) => { 
-  const { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
+  const { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang  } = req.body;
 
-  if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) 
-  {
+  // Kiểm tra các trường dữ liệu
+  if (!Ma_ddh || !Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
     return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
   }
-  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan))
-  {
-    return res.status(400).json({message: 'Số điện thoại không hợp lệ!'});
+
+  // Kiểm tra số điện thoại hợp lệ
+  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan)) {
+    return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
+
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
-  try 
-  {
+  try {
     const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
-    const [existingData] = await db.execute(query, [Ma_ddh]);
-    if ( existingData.length > 0)
-    {
-      let message = '';
-        if (existingData.some(item => item.Ma_ddh === Ma_ddh ))
-          message = 'Mã đơn hàng đã tồn tại!';
-          
-      return res.status(400).json({ message });
+
+    // Kiểm tra mã đơn hàng có tồn tại chưa
+    const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
+    const [existingData] = await db.execute(checkMaDDHQuery, [Ma_ddh]);
+    if (existingData.length > 0) {
+      return res.status(400).json({ message: 'Mã đơn hàng đã tồn tại!' });
     }
-    // Thêm đơn đặt hàng mới
-    const query = `
-      INSERT INTO don_dat_hang (Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang)
-      VALUES (?, ?, ?, ?)
-    `;
+
+    // Thêm đơn đặt hàng mới vào cơ sở dữ liệu
+    const query = `CALL AddDonDatHang(?, ?, ?, ?)`;
     await db.execute(query, [Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang]);
 
     res.status(201).json({
       message: 'Tạo đơn hàng thành công!',
-      don_dat_hang: {
-        Ma_ddh,
-        Sdt_nguoi_gui,
-        Sdt_nguoi_nhan,
-        Ma_khach_hang
-      }
+      don_dat_hang: { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang }
     });
-  } catch (err) 
-  {
+  } catch (err) {
     console.error('Lỗi khi tạo đơn hàng:', err);
     res.status(500).json({ message: 'Có lỗi xảy ra khi tạo đơn hàng.' });
   }
 });
 
+
 // 2. Lấy thông tin đơn hàng theo mã (GET)
-router.get('/:Ma_ddh', async (req, res) => 
-{
+router.get('/:Ma_ddh', async (req, res) => {
   const { Ma_ddh } = req.params;
 
   const query = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
@@ -69,9 +60,9 @@ router.get('/:Ma_ddh', async (req, res) =>
   try {
     const [results] = await db.execute(query, [Ma_ddh]);
     if (results.length > 0) {
-      res.json(results[0]);  // Trả về đơn hàng đầu tiên tìm thấy
+      res.json(results[0]);
     } else {
-      res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+      res.status(404).json({ message: 'Không tìm thấy đơn hàng với mã đã cho' });
     }
   } catch (err) {
     console.error('Lỗi truy vấn:', err);
@@ -85,12 +76,12 @@ router.put('/:Ma_ddh', async (req, res) => {
   const { Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
 
   if (!Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
-    return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
+    return res.status(400).json({ message: 'Thiếu thông tin đơn hàng hoặc tuổi nhân viên!' });
   }
-  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan))
-  {
-    return res.status(400).json({message: 'Số điện thoại không hộp lệ!'});
+  if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan)) {
+    return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
+
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
   try {
@@ -98,14 +89,12 @@ router.put('/:Ma_ddh', async (req, res) => {
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
+
     // Kiểm tra đơn hàng có tồn tại không
     const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
-    if (existingMaDDH.length === 0) {
+    const [existingData] = await db.execute(checkMaDDHQuery, [Ma_ddh]);
+    if (existingData.length === 0) {
       return res.status(404).json({ message: 'Mã đơn hàng không tồn tại!' });
-    }
-    const [existingData] = await db.execute(query, [Ma_ddh]);
-    if ( existingData.length > 0 ) {
-      return res.status(404).json({ message: 'Mã đơn hàng đã tồn tại'});
     }
 
     // Cập nhật thông tin đơn hàng
@@ -118,12 +107,7 @@ router.put('/:Ma_ddh', async (req, res) => {
 
     res.status(200).json({
       message: 'Cập nhật đơn hàng thành công!',
-      don_dat_hang: {
-        Ma_ddh,
-        Sdt_nguoi_gui,
-        Sdt_nguoi_nhan,
-        Ma_khach_hang
-      }
+      don_dat_hang: { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang}
     });
   } catch (err) {
     console.error('Lỗi khi cập nhật đơn hàng:', err);
@@ -154,7 +138,6 @@ router.delete('/:Ma_ddh', async (req, res) => {
   }
 });
 
-// 5. Lấy tất cả đơn hàng (GET)
 router.get('/', async (req, res) => {
   const query = 'SELECT * FROM don_dat_hang';  // Truy vấn lấy tất cả đơn đặt hàng
 
@@ -170,5 +153,4 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn đơn hàng.' });
   }
 });
-
 module.exports = router;

@@ -4,46 +4,48 @@ const db = require('../config/db');
 
 // Hàm kiểm tra định dạng email
 const validateEmail = (email) => {
-  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(email);
 };
 
-const validatePhoneNumber = (SDT) => 
-{
-  const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra 10 chữ số
+// Hàm kiểm tra số điện thoại hợp lệ
+const validatePhoneNumber = (SDT) => {
+  const regex = /^(03|05|07|08|09)\d{8}$/; // Kiểm tra số điện thoại 10-11 chữ số
   return regex.test(SDT);
-}
+};
+
 // Lấy tất cả khách hàng
 router.get('/', async (req, res) => {
   const query = 'SELECT * FROM khach_hang';
-  
+
   try {
-    const [results] = await db.execute(query);  // Thực thi truy vấn
+    const [results] = await db.execute(query);
     if (results.length > 0) {
-      res.json(results);  // Trả về tất cả đơn hàng
+      res.json(results);
     } else {
-      res.status(404).json({ message: 'Không có đơn hàng nào!' });
+      res.status(404).json({ message: 'Không có khách hàng nào!' });
     }
   } catch (err) {
     console.error('Lỗi truy vấn:', err);
-    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn đơn hàng.' });
+    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn dữ liệu khách hàng.' });
   }
 });
-  //Lay khach hang theo id
+
+// Lấy khách hàng theo mã khách hàng
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const query = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
 
   try {
-    const [results, fields] = await db.execute(query, [id]);
+    const [results] = await db.execute(query, [id]);
     if (results.length > 0) {
-      res.json(results[0]); // Trả về dữ liệu khách hàng đầu tiên
+      res.json(results[0]);
     } else {
       res.status(404).json({ message: 'Không tìm thấy khách hàng' });
     }
   } catch (err) {
     console.error('Lỗi truy vấn:', err);
-    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn cơ sở dữ liệu.' });
+    res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn dữ liệu khách hàng.' });
   }
 });
 
@@ -66,10 +68,8 @@ router.post('/', async (req, res) => {
   }
 
   // Kiểm tra xem Mã khách hàng, Số điện thoại và Email có tồn tại không
-  const checkQuery = `
-    SELECT * FROM khach_hang WHERE Ma_khach_hang = ? OR SDT = ? OR Email = ?
-  `;
-  
+  const checkQuery = `SELECT * FROM khach_hang WHERE Ma_khach_hang = ? OR SDT = ? OR Email = ?`;
+
   try {
     const [existingData] = await db.execute(checkQuery, [Ma_khach_hang, SDT, Email]);
 
@@ -88,9 +88,9 @@ router.post('/', async (req, res) => {
 
     // Thêm khách hàng mới vào cơ sở dữ liệu
     const insertQuery = `
-      CALL AddKhachHang(?,?,?,?,?);
+      CALL AddKhachHang(?, ?, ?, ?, ?)
     `;
-    const [results] = await db.execute(insertQuery, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
+    await db.execute(insertQuery, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
 
     res.status(201).json({
       message: 'Thêm khách hàng thành công!',
@@ -108,7 +108,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-
 // Cập nhật thông tin khách hàng
 router.put('/:Ma_khach_hang', async (req, res) => {
   const { Ma_khach_hang } = req.params;
@@ -121,6 +120,7 @@ router.put('/:Ma_khach_hang', async (req, res) => {
   if (!validateEmail(Email)) {
     return res.status(400).json({ message: 'Email không hợp lệ!' });
   }
+
   if (!validatePhoneNumber(SDT)) {
     return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
@@ -190,7 +190,5 @@ router.delete('/:Ma_khach_hang', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa khách hàng.' });
   }
 });
-
-
 
 module.exports = router;

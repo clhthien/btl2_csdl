@@ -4,41 +4,37 @@ const db = require('../config/db');  // Giả sử bạn đã cấu hình kết 
 
 // 1. Tạo kho hàng mới (POST)
 router.post('/', async (req, res) => {
-  const { Ma_kho, Dia_chi, Suc_chua } = req.body;
+  const { Ma_kho, Dia_chi, Suc_chua, So_luong_kien_hang } = req.body;
 
   // Kiểm tra thông tin đầu vào
-  if (!Ma_kho || !Dia_chi || !Suc_chua) {
+  if (!Ma_kho || !Dia_chi || !Suc_chua || !So_luong_kien_hang) {
     return res.status(400).json({ message: 'Thiếu thông tin kho hàng!' });
   }
 
   // Kiểm tra mã kho đã tồn tại chưa
   const checkMaKhoQuery = 'SELECT * FROM kho_hang WHERE Ma_kho = ?';
   const checkDiaChiQuery = 'SELECT * FROM kho_hang WHERE Dia_chi = ?';
-  try 
-  {
+  try {
     const [existingMaKho] = await db.execute(checkMaKhoQuery, [Ma_kho]);
     if (existingMaKho.length > 0) {
       return res.status(400).json({ message: 'Mã kho đã tồn tại!' });
     }
-    const [existingDiaChi] = await db.execute(checkDiaChiQuery, [Ma_kho]);
-    if ( existingDiaChi.length > 0 )
-    {
-      return res.status(404).json({message: 'Địa chỉ đã được đăng kí' })
+    const [existingDiaChi] = await db.execute(checkDiaChiQuery, [Dia_chi]);
+    if (existingDiaChi.length > 0) {
+      return res.status(400).json({ message: 'Địa chỉ đã được đăng ký' });
     }
 
-    // Thêm kho hàng mới
-    const query = `
-      INSERT INTO kho_hang (Ma_kho, Dia_chi, Suc_chua)
-      VALUES (?, ?, ?)
-    `;
-    await db.execute(query, [Ma_kho, Dia_chi, Suc_chua]);
+    // Gọi stored procedure AddKhoHang để thêm kho hàng mới
+    const query = 'CALL AddKhoHang(?, ?, ?, ?)';
+    await db.execute(query, [Ma_kho, Dia_chi, Suc_chua, So_luong_kien_hang]);
 
     res.status(201).json({
       message: 'Tạo kho hàng thành công!',
       kho_hang: {
         Ma_kho,
         Dia_chi,
-        Suc_chua
+        Suc_chua,
+        So_luong_kien_hang
       }
     });
   } catch (err) {
@@ -113,6 +109,7 @@ router.put('/:Ma_kho', async (req, res) => {
 });
 
 // 4. Xóa kho hàng (DELETE)
+// 4. Xóa kho hàng (DELETE)
 router.delete('/:Ma_kho', async (req, res) => {
   const { Ma_kho } = req.params;
 
@@ -124,9 +121,9 @@ router.delete('/:Ma_kho', async (req, res) => {
       return res.status(404).json({ message: 'Mã kho không tồn tại!' });
     }
 
-    // Xóa kho hàng
-    const deleteQuery = 'DELETE FROM kho_hang WHERE Ma_kho = ?';
-    await db.execute(deleteQuery, [Ma_kho]);
+    // Gọi stored procedure DeleteKhoHang để xóa kho hàng
+    const query = 'CALL DeleteKhoHang(?)';
+    await db.execute(query, [Ma_kho]);
 
     res.status(200).json({ message: 'Xóa kho hàng thành công!' });
   } catch (err) {
@@ -134,6 +131,7 @@ router.delete('/:Ma_kho', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa kho hàng.' });
   }
 });
+
 
 // 5. Lấy tất cả kho hàng (GET)
     router.get('/', async (req, res) => {

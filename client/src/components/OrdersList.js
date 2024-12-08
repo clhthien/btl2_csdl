@@ -12,7 +12,7 @@ const OrdersList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/dondathang')
+    fetch(process.env.REACT_APP_API_URL + '/dondathang')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -30,7 +30,7 @@ const OrdersList = () => {
   }, []);
 
   const deleteOrder = (orderId) => {
-    fetch(`http://localhost:3001/api/dondathang/${orderId}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/dondathang/${orderId}`, {
       method: 'DELETE',
     })
       .then((response) => response.json())

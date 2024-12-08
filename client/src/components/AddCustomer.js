@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import './AddCustomer.css'; // Giữ nguyên liên kết tới file CSS
 
 const AddCustomer = () => {
   const [customer, setCustomer] = useState({
-    Ma_khach_hang: '',
-    Ho_ten_dem: '',
-    Ten: '',
-    SDT: '',
-    Email: ''
+    customerCode: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: ''
   });
 
   const handleChange = (e) => {
@@ -20,13 +21,13 @@ const AddCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!customer.Ma_khach_hang || !customer.Ho_ten_dem || !customer.Ten || !customer.SDT || !customer.Email) {
-      alert('Vui lòng điền đầy đủ thông tin.');
+    if (!customer.customerCode || !customer.firstName || !customer.lastName || !customer.phone || !customer.email) {
+      alert('Please fill out all the information.');
       return;
     }
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + '/khachhang', {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,84 +38,103 @@ const AddCustomer = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Thêm khách hàng thành công!');
+        alert('Customer added successfully!');
         setCustomer({
-          Ma_khach_hang: '',
-          Ho_ten_dem: '',
-          Ten: '',
-          SDT: '',
-          Email: ''
+          customerCode: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: ''
         });
       } else {
-        alert(data.message || 'Có lỗi xảy ra khi thêm khách hàng.');
+        alert(data.message || 'Error occurred while adding the customer.');
       }
     } catch (error) {
-      console.error('Lỗi kết nối:', error);
-      alert('Không thể kết nối tới máy chủ.');
+      console.error('Connection error:', error);
+      alert('Unable to connect to the server.');
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Thêm Khách Hàng</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Ma_khach_hang:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ma_khach_hang"
-            value={customer.Ma_khach_hang}
-            onChange={handleChange}
-            required
-          />
+    <div className="container-fluid mt-3">
+      <h2 className="text-center mb-4">Add Customer</h2>
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <form onSubmit={handleSubmit} className="shadow-lg p-4 rounded border">
+            <div className="form-group row mb-3">
+              <label htmlFor="customerCode" className="col-md-4 col-form-label">Customer ID:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="customerCode"
+                  name="customerCode"
+                  value={customer.customerCode}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="firstName" className="col-md-4 col-form-label">First Name:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="firstName"
+                  name="firstName"
+                  value={customer.firstName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="lastName" className="col-md-4 col-form-label">Last Name:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="lastName"
+                  name="lastName"
+                  value={customer.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="phone" className="col-md-4 col-form-label">Phone Number:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="phone"
+                  name="phone"
+                  value={customer.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="email" className="col-md-4 col-form-label">Email:</label>
+              <div className="col-md-8">
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  value={customer.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary btn-block mt-4">Add Customer</button>
+          </form>
         </div>
-        <div className="form-group">
-          <label>Họ và tên đệm:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ho_ten_dem"
-            value={customer.Ho_ten_dem}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Tên:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ten"
-            value={customer.Ten}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Số điện thoại:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="SDT"
-            value={customer.SDT}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email:</label>
-          <input
-            type="email"
-            className="form-control"
-            name="Email"
-            value={customer.Email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Thêm khách hàng</button>
-      </form>
+      </div>
     </div>
   );
 };

@@ -1,0 +1,43 @@
+/* Loại bỏ khoảng trắng ở trên */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  .container.mt-5 {
+    margin-top: 0 !important; /* Loại bỏ khoảng trắng trên cùng */
+  }
+  
+  /* Tùy chỉnh sidebar */
+  .list-group-item {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .list-group-item:hover {
+    background-color: #0026ff;
+    color: rgb(157, 138, 221);
+  }
+  
+  .list-group {
+    padding-top: 10px;
+  }
+  
+  /* Làm cho phần nội dung cao hơn */
+  .col-md-10 {
+    height: 100%;
+    padding-top: 20px;
+  }
+  
+  /* Thêm hiệu ứng shadow cho các phần tử */
+  .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  

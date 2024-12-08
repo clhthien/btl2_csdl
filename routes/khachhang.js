@@ -88,8 +88,7 @@ router.post('/', async (req, res) => {
 
     // Thêm khách hàng mới vào cơ sở dữ liệu
     const insertQuery = `
-      INSERT INTO khach_hang (Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email) 
-      VALUES (?, ?, ?, ?, ?)
+      CALL AddKhachHang(?,?,?,?,?);
     `;
     const [results] = await db.execute(insertQuery, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
 

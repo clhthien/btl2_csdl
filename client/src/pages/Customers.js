@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import CustomersList from '../components/CustomersList';
 import AddCustomer from '../components/AddCustomer';
+import './Customers.css'; // Import file CSS tùy chỉnh
 
 const Customers = () => {
-  const [activeComponent, setActiveComponent] = useState('list'); // Quản lý phần tử nào được hiển thị
+  const [activeComponent, setActiveComponent] = useState('list'); // Manage which component is active
 
   return (
     <div className="container mt-5">
       <div className="row">
-        <div className="col-md-3">
-          {/* Sidebar chứa các lựa chọn */}
+        <div className="col-md-2">
+          {/* Sidebar with options */}
           <div className="list-group">
             <button
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('list')}
             >
-              Danh sách Khách Hàng
+              Customer List
             </button>
             <button
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('add')}
             >
-              Thêm Khách Hàng
+              Add Customer
             </button>
           </div>
         </div>
-        <div className="col-md-9">
-          {/* Render component tương ứng với lựa chọn */}
+        <div className="col-md-10">
+          {/* Render corresponding component based on selection */}
           {activeComponent === 'list' ? <CustomersList /> : <AddCustomer />}
         </div>
       </div>

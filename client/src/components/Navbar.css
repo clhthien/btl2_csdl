@@ -1,0 +1,49 @@
+/* Tạo hiệu ứng bóng đổ và thay đổi màu nền */
+.bg-custom {
+    background-color: #1e2a3a; /* Màu nền tối, tạo cảm giác hiện đại và chuyên nghiệp */
+    border-radius: 8px; /* Viền mềm mại cho navbar */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Tạo bóng đổ cho navbar */
+    position: fixed; /* Làm cho navbar cố định khi cuộn */
+    top: 0; /* Đặt navbar ở trên cùng */
+    left: 0;
+    width: 100%; /* Đảm bảo navbar chiếm toàn bộ chiều rộng */
+    z-index: 1000; /* Đảm bảo navbar nằm trên các phần tử khác */
+    padding: 10px 0; /* Thêm một chút padding để navbar không quá sát vào cạnh */
+}
+
+/* Chỉnh sửa màu chữ của logo và tăng kích thước chữ */
+.navbar-brand {
+    color: #ffffff !important; /* Màu chữ trắng */
+    font-size: 2rem; /* Tăng kích thước chữ logo */
+    font-weight: 700; /* Làm cho logo đậm và nổi bật */
+}
+
+/* Tăng kích thước chữ cho các liên kết trong navbar */
+.navbar-nav .nav-item .nav-link {
+    color: #d1d8e0 !important; /* Màu chữ nhạt */
+    font-size: 1.2rem; /* Tăng kích thước chữ của liên kết */
+    padding: 10px 15px;
+    transition: color 0.3s ease-in-out; /* Hiệu ứng chuyển màu mượt mà */
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #f39c12 !important; /* Màu vàng sáng khi hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Nền nhạt khi hover */
+    border-radius: 4px; /* Viền mềm mại khi hover */
+}
+
+/* Tùy chỉnh giao diện của nút toggle cho màn hình nhỏ */
+.navbar-toggler-icon {
+    background-color: #f39c12; /* Màu vàng cho nút toggle */
+}
+
+/* Tăng kích thước chữ cho các liên kết navbar trên màn hình nhỏ */
+@media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        color: #f39c12 !important;
+        font-size: 1.4rem; /* Tăng kích thước chữ của liên kết trên màn hình nhỏ */
+    }
+    .navbar-nav .nav-item {
+        margin-bottom: 10px;
+    }
+}

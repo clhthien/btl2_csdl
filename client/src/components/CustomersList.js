@@ -1,104 +1,17 @@
-// import React, { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import {FaEdit, FaTrash} from 'react-icons/fa';
-
-// const CustomersList = () => {
-//   const [customers, setCustomers] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     fetch(process.env.REACT_APP_API_URL + '/khachhang')
-//       .then((response) => {
-//         if (!response.ok) {
-//           throw new Error('Network response was not ok');
-//         }
-//         return response.json();
-//       })
-//       .then((data) => {
-//         setCustomers(data);
-//         setLoading(false);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching customers:', error);
-//         setLoading(false);
-//       });
-//   }, []);
-
-//   const deleteCustomer = (ma_khach_hang) => {
-//     fetch(process.env.REACT_APP_API_URL + '/khachhang/' + ma_khach_hang, {
-//       method: 'DELETE',
-//     })
-//       .then((response) => response.json())
-//       .then((data) => {
-//         if (data.message) {
-//           alert(data.message); // Hiển thị thông báo khi xóa thành công
-//         }
-//         setCustomers(customers.filter(customer => customer.Ma_khach_hang !== ma_khach_hang)); // Cập nhật lại danh sách khách hàng
-//       })
-//       .catch((error) => console.error('Error deleting customer:', error));
-//   };
-
-//   const updateCustomer = (ma_khach_hang) => {
-//     navigate(`/customers/update/${ma_khach_hang}`); // Điều hướng tới trang UpdateCustomer với id của khách hàng
-//   };
-
-//   return (
-//     <div className="container mt-5">
-//       <h1>Danh sách Khách Hàng</h1>
-//       {loading ? (
-//         <p>Loading...</p>
-//       ) : (
-//         <table className="table table-bordered">
-//           <thead>
-//             <tr>
-//               <th>Ma_khach_hang</th>
-//               <th>Họ và tên đệm</th>
-//               <th>Tên</th>
-//               <th>Số điện thoại</th>
-//               <th>Email</th>
-//               <th>Thao tác</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {customers.length === 0 ? (
-//               <tr>
-//                 <td colSpan="6">Không có khách hàng nào.</td>
-//               </tr>
-//             ) : (
-//               customers.map((customer) => (
-//                 <tr key={customer.Ma_khach_hang}>
-//                   <td>{customer.Ma_khach_hang}</td>
-//                   <td>{customer.Ho_ten_dem}</td>
-//                   <td>{customer.Ten}</td>
-//                   <td>{customer.SDT}</td>
-//                   <td>{customer.Email}</td>
-//                   <td>
-//                     <button className="btn btn-warning mr-2" style={{marginRight:'10px'}} onClick={() => updateCustomer(customer.Ma_khach_hang)}><FaEdit/></button>
-//                     <button className="btn btn-danger" onClick={() => deleteCustomer(customer.Ma_khach_hang)}><FaTrash/></button>
-//                   </td>
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CustomersList;
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import './CustomersList.css'; // Import file CSS tùy chỉnh
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortOrderMaKhachHang, setSortOrderMaKhachHang] = useState('asc'); // Sort order for customer ID
+  const [sortOrderFirstName, setSortOrderFirstName] = useState('asc'); // Sort order for first name
+  const [sortOrderLastName, setSortOrderLastName] = useState('asc'); // Sort order for last name
   const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage] = useState(5); // Số khách hàng mỗi trang
+  const [customersPerPage] = useState(5); // Number of customers per page
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -119,41 +32,39 @@ const CustomersList = () => {
       });
   }, []);
 
-  const deleteCustomer = (ma_khach_hang) => {
-    fetch(process.env.REACT_APP_API_URL + '/khachhang/' + ma_khach_hang, {
+  const deleteCustomer = (customerId) => {
+    fetch(process.env.REACT_APP_API_URL + '/khachhang/' + customerId, {
       method: 'DELETE',
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          alert(data.message); // Hiển thị thông báo khi xóa thành công
+          alert(data.message); // Show success message when deleted
         }
-        setCustomers(customers.filter(customer => customer.Ma_khach_hang !== ma_khach_hang)); // Cập nhật lại danh sách khách hàng
+        setCustomers(customers.filter(customer => customer.Ma_khach_hang !== customerId)); // Update customer list
       })
       .catch((error) => console.error('Error deleting customer:', error));
   };
 
-  const updateCustomer = (ma_khach_hang) => {
-    navigate(`/customers/update/${ma_khach_hang}`); // Điều hướng tới trang UpdateCustomer với id của khách hàng
+  const updateCustomer = (customerId) => {
+    navigate(`/customers/update/${customerId}`); // Navigate to UpdateCustomer page
   };
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); // Khi tìm kiếm, quay về trang đầu
+    setCurrentPage(1); // Reset to the first page when searching
   };
 
-  const handleSort = (field) => {
-    const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortOrder(newSortOrder);
+  const handleSort = (field, sortOrder) => {
     const sortedCustomers = [...customers].sort((a, b) => {
-      if (a[field] < b[field]) return newSortOrder === 'asc' ? -1 : 1;
-      if (a[field] > b[field]) return newSortOrder === 'asc' ? 1 : -1;
+      if (a[field] < b[field]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[field] > b[field]) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
     setCustomers(sortedCustomers);
   };
 
-  // Lọc khách hàng theo mã khách hàng hoặc họ tên
+  // Filter customers by full name or customer ID
   const filteredCustomers = customers.filter((customer) => {
     const fullName = `${customer.Ho_ten_dem} ${customer.Ten}`.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
@@ -168,18 +79,18 @@ const CustomersList = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Tính toán tổng số trang
+  // Calculate total pages
   const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
 
   return (
-    <div className="container mt-5">
-      <h1>Danh sách Khách Hàng</h1>
-      
+    <div className="container mt-4">
+      <h1>Customer List</h1>
+
       <div className="mb-3">
         <input
           type="text"
           className="form-control"
-          placeholder="Tìm kiếm khách hàng theo họ tên hoặc mã khách hàng"
+          placeholder="Search customers by full name or customer ID"
           value={searchQuery}
           onChange={handleSearch}
         />
@@ -192,29 +103,53 @@ const CustomersList = () => {
           <thead>
             <tr>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ma_khach_hang')}>
-                  Mã khách hàng {sortOrder === 'asc' ? '↑' : '↓'}
+                Customer ID
+                <button
+                  className="btn btn-link"
+                  onClick={() => {
+                    const newOrder = sortOrderMaKhachHang === 'asc' ? 'desc' : 'asc';
+                    setSortOrderMaKhachHang(newOrder);
+                    handleSort('Ma_khach_hang', newOrder);
+                  }}
+                >
+                  {sortOrderMaKhachHang === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
                 </button>
               </th>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ho_ten_dem')}>
-                  Họ và tên đệm {sortOrder === 'asc' ? '↑' : '↓'}
+                First Name
+                <button
+                  className="btn btn-link"
+                  onClick={() => {
+                    const newOrder = sortOrderFirstName === 'asc' ? 'desc' : 'asc';
+                    setSortOrderFirstName(newOrder);
+                    handleSort('Ho_ten_dem', newOrder);
+                  }}
+                >
+                  {sortOrderFirstName === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
                 </button>
               </th>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ten')}>
-                  Tên {sortOrder === 'asc' ? '↑' : '↓'}
+                Last Name
+                <button
+                  className="btn btn-link"
+                  onClick={() => {
+                    const newOrder = sortOrderLastName === 'asc' ? 'desc' : 'asc';
+                    setSortOrderLastName(newOrder);
+                    handleSort('Ten', newOrder);
+                  }}
+                >
+                  {sortOrderLastName === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
                 </button>
               </th>
-              <th>Số điện thoại</th>
-              <th>Email</th>
-              <th>Thao tác</th>
+              <th>Phone Number</th> {/* No sorting on this column */}
+              <th>Email</th> {/* No sorting on this column */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentCustomers.length === 0 ? (
               <tr>
-                <td colSpan="6">Không có khách hàng nào.</td>
+                <td colSpan="6">No customers found.</td>
               </tr>
             ) : (
               currentCustomers.map((customer) => (
@@ -225,7 +160,7 @@ const CustomersList = () => {
                   <td>{customer.SDT}</td>
                   <td>{customer.Email}</td>
                   <td>
-                    <button className="btn btn-warning mr-2" style={{ marginRight: '10px' }} onClick={() => updateCustomer(customer.Ma_khach_hang)}>
+                    <button className="btn btn-warning mr-2" onClick={() => updateCustomer(customer.Ma_khach_hang)}>
                       <FaEdit />
                     </button>
                     <button className="btn btn-danger" onClick={() => deleteCustomer(customer.Ma_khach_hang)}>
@@ -239,7 +174,7 @@ const CustomersList = () => {
         </table>
       )}
 
-      {/* Phân trang */}
+      {/* Pagination */}
       <nav>
         <ul className="pagination">
           <li className="page-item" onClick={() => paginate(currentPage - 1)} style={{ cursor: 'pointer' }} disabled={currentPage === 1}>

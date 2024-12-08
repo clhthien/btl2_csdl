@@ -137,7 +137,7 @@ const EmployeesList = () => {
               <th>Tên</th>
               <th>Ngày sinh</th>
               <th>Số điện thoại</th>
-              <th>Loại nhân viên</th>
+              {/* <th>Loại nhân viên</th> */}
               <th>Thông tin thêm</th>
               <th>Thao tác</th>
             </tr>
@@ -155,7 +155,7 @@ const EmployeesList = () => {
                   <td>{employee.Ten}</td>
                   <td>{employee.Ngay_sinh}</td>
                   <td>{employee.SDT}</td>
-                  <td>{employee.Loai_nhan_vien}</td> {/* Hiển thị loại nhân viên */}
+                  {/* <td>{employee.Loai_nhan_vien}</td> */}
                   <td>
                     {/* Hiển thị thông tin thêm dựa trên loại nhân viên */}
                     {employee.Loai_nhan_vien === 'bao_tri' && employee.Bao_tri && (

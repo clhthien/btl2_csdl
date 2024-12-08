@@ -10,8 +10,10 @@ const UpdateEmployee = () => {
     Ten: '',
     SDT: '',
     Ngay_sinh: '',
-    Loai_nhan_vien: 'bao_tri', // Loại nhân viên mặc định là bảo trì
-    Bao_tri: '', // Thông tin bảo trì
+    Loai_nhan_vien: '', // Loại nhân viên mặc định là bảo trì
+    Bao_tri: {
+      dia_chi: '',
+    }, // Thông tin bảo trì
     Giao_hang: {
       bang_lai: '', // Bằng lái
       phuong_tien: '' // Phương tiện
@@ -41,7 +43,6 @@ const UpdateEmployee = () => {
     });
   };
 
-  // Hàm gửi yêu cầu cập nhật thông tin nhân viên
   const handleSubmit = async (e) => {
     e.preventDefault();
 

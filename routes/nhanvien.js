@@ -176,7 +176,35 @@ router.get('/', async (req, res) => {
     const query = 'SELECT * FROM nhan_vien';
     try {
         const [results] = await db.execute(query);
-        res.json(results);
+        const employeesWithType = [];
+
+        for (let employee of results) {
+            let type = null;
+            const { Ma_nv } = employee;
+
+            // Kiểm tra loại nhân viên
+            const checkBaoTri = 'SELECT * FROM nhan_vien_bao_tri WHERE Ma_nvbt = ?';
+            const [baoTri] = await db.execute(checkBaoTri, [Ma_nv]);
+            if (baoTri.length > 0) {
+                type = 'bao_tri';
+            } else {
+                const checkGiaoHang = 'SELECT * FROM nhan_vien_giao_hang WHERE Ma_nvgh = ?';
+                const [giaoHang] = await db.execute(checkGiaoHang, [Ma_nv]);
+                if (giaoHang.length > 0) {
+                    type = 'giao_hang';
+                } else {
+                    const checkVanPhong = 'SELECT * FROM nhan_vien_van_phong WHERE Ma_nvvp = ?';
+                    const [vanPhong] = await db.execute(checkVanPhong, [Ma_nv]);
+                    if (vanPhong.length > 0) {
+                        type = 'van_phong';
+                    }
+                }
+            }
+
+            employeesWithType.push({ ...employee, Loai_nhan_vien: type });
+        }
+
+        res.json(employeesWithType);
     } catch (err) {
         console.error('Lỗi truy vấn:', err);
         res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn cơ sở dữ liệu.' });
@@ -191,22 +219,30 @@ router.get('/:id', async (req, res) => {
         const [results] = await db.execute(query, [id]);
         if (results.length > 0) {
             const employee = results[0];
-            // Lấy thêm thông tin từ các bảng kế thừa nếu có
-            let additionalInfo = {};
-            const { Loai_nhan_vien } = employee;
+            let type = null;
 
-            if (Loai_nhan_vien === 'bao_tri') {
-                const queryBaoTri = 'SELECT * FROM nhan_vien_bao_tri WHERE Ma_nvbt = ?';
-                additionalInfo = await db.execute(queryBaoTri, [id]);
-            } else if (Loai_nhan_vien === 'giao_hang') {
-                const queryGiaoHang = 'SELECT * FROM nhan_vien_giao_hang WHERE Ma_nvgh = ?';
-                additionalInfo = await db.execute(queryGiaoHang, [id]);
-            } else if (Loai_nhan_vien === 'van_phong') {
-                const queryVanPhong = 'SELECT * FROM nhan_vien_van_phong WHERE Ma_nvvp = ?';
-                additionalInfo = await db.execute(queryVanPhong, [id]);
+            const { Ma_nv } = employee;
+
+            // Kiểm tra loại nhân viên
+            const checkBaoTri = 'SELECT * FROM nhan_vien_bao_tri WHERE Ma_nvbt = ?';
+            const [baoTri] = await db.execute(checkBaoTri, [Ma_nv]);
+            if (baoTri.length > 0) {
+                type = 'bao_tri';
+            } else {
+                const checkGiaoHang = 'SELECT * FROM nhan_vien_giao_hang WHERE Ma_nvgh = ?';
+                const [giaoHang] = await db.execute(checkGiaoHang, [Ma_nv]);
+                if (giaoHang.length > 0) {
+                    type = 'giao_hang';
+                } else {
+                    const checkVanPhong = 'SELECT * FROM nhan_vien_van_phong WHERE Ma_nvvp = ?';
+                    const [vanPhong] = await db.execute(checkVanPhong, [Ma_nv]);
+                    if (vanPhong.length > 0) {
+                        type = 'van_phong';
+                    }
+                }
             }
 
-            res.json({ employee, additionalInfo });
+            res.json({ employee, Loai_nhan_vien: type });
         } else {
             res.status(404).json({ message: 'Không tìm thấy nhân viên' });
         }
@@ -244,16 +280,13 @@ router.post('/', async (req, res) => {
         }
 
         // Thêm nhân viên vào bảng nhan_vien
-        const query = `
-        INSERT INTO nhan_vien (Ma_nv, Ho_ten_dem, Ten, Ngay_sinh, SDT) 
-        VALUES (?, ?, ?, ?, ?)
-      `;
+        const query = `INSERT INTO nhan_vien (Ma_nv, Ho_ten_dem, Ten, Ngay_sinh, SDT) VALUES (?, ?, ?, ?, ?)`;
         await db.execute(query, [Ma_nv, Ho_ten_dem, Ten, Ngay_sinh, SDT]);
 
         // Thêm thông tin vào bảng kế thừa dựa trên loại nhân viên
         if (Loai_nhan_vien === 'bao_tri') {
             const insertBaoTriQuery = 'INSERT INTO nhan_vien_bao_tri (Ma_nvbt, Dia_chi_lam_viec) VALUES (?, ?)';
-            await db.execute(insertBaoTriQuery, [Ma_nv, Bao_tri]);
+            await db.execute(insertBaoTriQuery, [Ma_nv, Bao_tri.dia_chi]);
         } else if (Loai_nhan_vien === 'giao_hang') {
             const insertGiaoHangQuery = 'INSERT INTO nhan_vien_giao_hang (Ma_nvgh, Bang_lai, Phuong_tien) VALUES (?, ?, ?)';
             await db.execute(insertGiaoHangQuery, [Ma_nv, Giao_hang.bang_lai, Giao_hang.phuong_tien]);
@@ -305,7 +338,7 @@ router.put('/:Ma_nv', async (req, res) => {
         // Cập nhật thông tin trong bảng kế thừa nếu loại nhân viên thay đổi
         if (Loai_nhan_vien === 'bao_tri') {
             const updateBaoTriQuery = 'UPDATE nhan_vien_bao_tri SET Dia_chi_lam_viec = ? WHERE Ma_nvbt = ?';
-            await db.execute(updateBaoTriQuery, [Bao_tri, Ma_nv]);
+            await db.execute(updateBaoTriQuery, [Bao_tri.dia_chi, Ma_nv]);
         } else if (Loai_nhan_vien === 'giao_hang') {
             const updateGiaoHangQuery = 'UPDATE nhan_vien_giao_hang SET Bang_lai = ?, Phuong_tien = ? WHERE Ma_nvgh = ?';
             await db.execute(updateGiaoHangQuery, [Giao_hang.bang_lai, Giao_hang.phuong_tien, Ma_nv]);

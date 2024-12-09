@@ -74,7 +74,7 @@ const UpdateEmployee = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5 d-flex justify-content-center">
       <h2>Cập nhật thông tin Nhân Viên</h2>
       <form onSubmit={handleSubmit}>
         {/* Các trường thông tin chung */}

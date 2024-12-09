@@ -16,7 +16,7 @@ const Customers = () => {
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('list')}
             >
-              Customer List
+              Customers List
             </button>
             <button
               className="list-group-item list-group-item-action"

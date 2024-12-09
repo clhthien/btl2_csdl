@@ -42,11 +42,6 @@
     cursor: pointer;
   }
   
-  /* Move the entire form (including the Add button) up */
-  .card {
-    margin-top: -40px; /* Move the form container up by 40px */
-  }
-  
   /* Button styling */
   button[type="submit"] {
     margin-top: 20px; /* Make sure button still has some space above */

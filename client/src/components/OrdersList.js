@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSort } from 'react-icons/fa';
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortOrderMaDDH, setSortOrderMaDDH] = useState('asc');
+  const [sortOrderMaKH, setSortOrderMaKH] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [ordersPerPage] = useState(5); // Số đơn đặt hàng mỗi trang
+  const [ordersPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,34 +37,32 @@ const OrdersList = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          alert(data.message); // Hiển thị thông báo khi xóa thành công
+          alert(data.message); // Show success message when deleted
         }
-        setOrders(orders.filter(order => order.Ma_ddh !== orderId)); // Cập nhật lại danh sách đơn hàng
+        setOrders(orders.filter(order => order.Ma_ddh !== orderId)); // Update order list
       })
       .catch((error) => console.error('Error deleting order:', error));
   };
 
   const updateOrder = (orderId) => {
-    navigate(`/orders/update/${orderId}`); // Điều hướng tới trang UpdateOrder với id của đơn hàng
+    navigate(`/orders/update/${orderId}`); // Navigate to UpdateOrder page
   };
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); // Khi tìm kiếm, quay về trang đầu
+    setCurrentPage(1); // Reset to the first page when searching
   };
 
-  const handleSort = (field) => {
-    const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortOrder(newSortOrder);
+  const handleSort = (field, sortOrder) => {
     const sortedOrders = [...orders].sort((a, b) => {
-      if (a[field] < b[field]) return newSortOrder === 'asc' ? -1 : 1;
-      if (a[field] > b[field]) return newSortOrder === 'asc' ? 1 : -1;
+      if (a[field] < b[field]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[field] > b[field]) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
     setOrders(sortedOrders);
   };
 
-  // Lọc đơn hàng theo mã đơn hàng hoặc mã khách hàng
+  // Filter orders by order ID or customer ID
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchQuery.toLowerCase();
     return (
@@ -77,20 +76,21 @@ const OrdersList = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Tính toán tổng số trang
+  // Calculate total pages
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   return (
     <div className="container mt-5">
-      <h1>Danh sách Đơn Đặt Hàng</h1>
-      
+      <h1>Order List</h1>
+
       <div className="mb-3">
         <input
           type="text"
           className="form-control"
-          placeholder="Tìm kiếm đơn hàng theo mã đơn hoặc mã khách hàng"
+          placeholder="Search orders by Order ID or Customer ID"
           value={searchQuery}
           onChange={handleSearch}
+          style={{ width: '31%' }}
         />
       </div>
 
@@ -101,24 +101,40 @@ const OrdersList = () => {
           <thead>
             <tr>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ma_ddh')}>
-                  Mã đơn hàng {sortOrder === 'asc' ? '↑' : '↓'}
+                Order ID
+                <button
+                  className="btn btn-link"
+                  onClick={() => {
+                    const newOrder = sortOrderMaDDH === 'asc' ? 'desc' : 'asc';
+                    setSortOrderMaDDH(newOrder);
+                    handleSort('Ma_ddh', newOrder);
+                  }}
+                >
+                  <FaSort />
                 </button>
               </th>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ma_khach_hang')}>
-                  Mã khách hàng {sortOrder === 'asc' ? '↑' : '↓'}
+                Customer ID
+                <button
+                  className="btn btn-link"
+                  onClick={() => {
+                    const newOrder = sortOrderMaKH === 'asc' ? 'desc' : 'asc';
+                    setSortOrderMaKH(newOrder);
+                    handleSort('Ma_khach_hang', newOrder);
+                  }}
+                >
+                  <FaSort />
                 </button>
               </th>
-              <th>Số điện thoại người gửi</th>
-              <th>Số điện thoại người nhận</th>
-              <th>Thao tác</th>
+              <th>Sender Phone</th>
+              <th>Receiver Phone</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentOrders.length === 0 ? (
               <tr>
-                <td colSpan="5">Không có đơn hàng nào.</td>
+                <td colSpan="5">No orders found.</td>
               </tr>
             ) : (
               currentOrders.map((order) => (
@@ -128,7 +144,7 @@ const OrdersList = () => {
                   <td>{order.Sdt_nguoi_gui}</td>
                   <td>{order.Sdt_nguoi_nhan}</td>
                   <td>
-                    <button className="btn btn-warning mr-2" style={{ marginRight: '10px' }} onClick={() => updateOrder(order.Ma_ddh)}>
+                    <button className="btn btn-warning mr-2" onClick={() => updateOrder(order.Ma_ddh)}>
                       <FaEdit />
                     </button>
                     <button className="btn btn-danger" onClick={() => deleteOrder(order.Ma_ddh)}>
@@ -142,10 +158,14 @@ const OrdersList = () => {
         </table>
       )}
 
-      {/* Phân trang */}
+      {/* Pagination */}
       <nav>
         <ul className="pagination">
-          <li className="page-item" onClick={() => paginate(currentPage - 1)} style={{ cursor: 'pointer' }} disabled={currentPage === 1}>
+          <li
+            className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)} // Disable "Prev" if on the first page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Prev</span>
           </li>
           {[...Array(totalPages)].map((_, index) => (
@@ -158,7 +178,11 @@ const OrdersList = () => {
               <span className="page-link">{index + 1}</span>
             </li>
           ))}
-          <li className="page-item" onClick={() => paginate(currentPage + 1)} style={{ cursor: 'pointer' }} disabled={currentPage === totalPages}>
+          <li
+            className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
+            onClick={() => currentPage < totalPages && paginate(currentPage + 1)} // Disable "Next" if on the last page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Next</span>
           </li>
         </ul>

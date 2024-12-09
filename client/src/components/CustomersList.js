@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaArrowUp, FaArrowDown } from 'react-icons/fa';
-import './CustomersList.css'; // Import file CSS tùy chỉnh
+import { FaEdit, FaTrash, FaSort } from 'react-icons/fa';
+import './CustomersList.css';
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrderMaKhachHang, setSortOrderMaKhachHang] = useState('asc'); // Sort order for customer ID
-  const [sortOrderFirstName, setSortOrderFirstName] = useState('asc'); // Sort order for first name
-  const [sortOrderLastName, setSortOrderLastName] = useState('asc'); // Sort order for last name
+  const [sortOrderMaKhachHang, setSortOrderMaKhachHang] = useState('asc');
+  const [sortOrderFirstName, setSortOrderFirstName] = useState('asc');
+  const [sortOrderLastName, setSortOrderLastName] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage] = useState(5); // Number of customers per page
+  const [customersPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,20 +39,20 @@ const CustomersList = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          alert(data.message); // Show success message when deleted
+          alert(data.message);
         }
-        setCustomers(customers.filter(customer => customer.Ma_khach_hang !== customerId)); // Update customer list
+        setCustomers(customers.filter(customer => customer.Ma_khach_hang !== customerId));
       })
       .catch((error) => console.error('Error deleting customer:', error));
   };
 
   const updateCustomer = (customerId) => {
-    navigate(`/customers/update/${customerId}`); // Navigate to UpdateCustomer page
+    navigate(`/customers/update/${customerId}`);
   };
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); // Reset to the first page when searching
+    setCurrentPage(1);
   };
 
   const handleSort = (field, sortOrder) => {
@@ -64,7 +64,6 @@ const CustomersList = () => {
     setCustomers(sortedCustomers);
   };
 
-  // Filter customers by full name or customer ID
   const filteredCustomers = customers.filter((customer) => {
     const fullName = `${customer.Ho_ten_dem} ${customer.Ten}`.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
@@ -79,11 +78,10 @@ const CustomersList = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Calculate total pages
   const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-5">
       <h1>Customer List</h1>
 
       <div className="mb-3">
@@ -93,6 +91,7 @@ const CustomersList = () => {
           placeholder="Search customers by full name or customer ID"
           value={searchQuery}
           onChange={handleSearch}
+          style={{ width: '34%' }}
         />
       </div>
 
@@ -112,7 +111,7 @@ const CustomersList = () => {
                     handleSort('Ma_khach_hang', newOrder);
                   }}
                 >
-                  {sortOrderMaKhachHang === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
+                  <FaSort />
                 </button>
               </th>
               <th>
@@ -125,7 +124,7 @@ const CustomersList = () => {
                     handleSort('Ho_ten_dem', newOrder);
                   }}
                 >
-                  {sortOrderFirstName === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
+                  <FaSort />
                 </button>
               </th>
               <th>
@@ -138,11 +137,11 @@ const CustomersList = () => {
                     handleSort('Ten', newOrder);
                   }}
                 >
-                  {sortOrderLastName === 'asc' ? <FaArrowUp /> : <FaArrowDown />}
+                  <FaSort />
                 </button>
               </th>
-              <th>Phone Number</th> {/* No sorting on this column */}
-              <th>Email</th> {/* No sorting on this column */}
+              <th>Phone Number</th>
+              <th>Email</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -177,7 +176,11 @@ const CustomersList = () => {
       {/* Pagination */}
       <nav>
         <ul className="pagination">
-          <li className="page-item" onClick={() => paginate(currentPage - 1)} style={{ cursor: 'pointer' }} disabled={currentPage === 1}>
+          <li
+            className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)} // Disable "Prev" if on the first page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Prev</span>
           </li>
           {[...Array(totalPages)].map((_, index) => (
@@ -190,7 +193,11 @@ const CustomersList = () => {
               <span className="page-link">{index + 1}</span>
             </li>
           ))}
-          <li className="page-item" onClick={() => paginate(currentPage + 1)} style={{ cursor: 'pointer' }} disabled={currentPage === totalPages}>
+          <li
+            className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
+            onClick={() => currentPage < totalPages && paginate(currentPage + 1)} // Disable "Next" if on the last page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Next</span>
           </li>
         </ul>

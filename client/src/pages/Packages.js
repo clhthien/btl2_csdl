@@ -7,24 +7,24 @@ const Packages = () => {
   return (
     <div className="container mt-5">
       <div className="row">
-        <div className="col-md-3">
+        <div className="col-md-2">
           {/* Sidebar chứa các lựa chọn */}
           <div className="list-group">
             <button
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('list')}
             >
-              Danh sách Kiện Hàng
+              Packages List
             </button>
             <button
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('add')}
             >
-              Thêm Kiện Hàng
+              Add Package
             </button>
           </div>
         </div>
-        <div className="col-md-9">
+        <div className="col-md-10">
           {/* Render component tương ứng với lựa chọn */}
           {activeComponent === 'list' ? <PackagesList /> : <AddPackage />}
         </div>

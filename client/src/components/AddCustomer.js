@@ -3,11 +3,11 @@ import './AddCustomer.css'; // Giữ nguyên liên kết tới file CSS
 
 const AddCustomer = () => {
   const [customer, setCustomer] = useState({
-    customerCode: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: ''
+    Ma_khach_hang: '',
+    Ho_ten_dem: '',
+    Ten: '',
+    SDT: '',
+    Email: ''
   });
 
   const handleChange = (e) => {
@@ -40,11 +40,11 @@ const AddCustomer = () => {
       if (response.ok) {
         alert('Customer added successfully!');
         setCustomer({
-          customerCode: '',
-          firstName: '',
-          lastName: '',
-          phone: '',
-          email: ''
+          Ma_khach_hang: '',
+          Ho_ten_dem: '',
+          Ten: '',
+          SDT: '',
+          Email: ''
         });
       } else {
         alert(data.message || 'Error occurred while adding the customer.');
@@ -69,7 +69,7 @@ const AddCustomer = () => {
                   className="form-control"
                   id="customerCode"
                   name="customerCode"
-                  value={customer.customerCode}
+                  value={customer.Ma_khach_hang}
                   onChange={handleChange}
                   required
                 />
@@ -83,7 +83,7 @@ const AddCustomer = () => {
                   className="form-control"
                   id="firstName"
                   name="firstName"
-                  value={customer.firstName}
+                  value={customer.Ho_ten_dem}
                   onChange={handleChange}
                   required
                 />
@@ -97,7 +97,7 @@ const AddCustomer = () => {
                   className="form-control"
                   id="lastName"
                   name="lastName"
-                  value={customer.lastName}
+                  value={customer.Ten}
                   onChange={handleChange}
                   required
                 />
@@ -111,7 +111,7 @@ const AddCustomer = () => {
                   className="form-control"
                   id="phone"
                   name="phone"
-                  value={customer.phone}
+                  value={customer.SDT}
                   onChange={handleChange}
                   required
                 />
@@ -125,7 +125,7 @@ const AddCustomer = () => {
                   className="form-control"
                   id="email"
                   name="email"
-                  value={customer.email}
+                  value={customer.Email}
                   onChange={handleChange}
                   required
                 />

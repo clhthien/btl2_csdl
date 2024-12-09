@@ -63,13 +63,13 @@ const UpdateCustomer = () => {
 
   return (
     <div className="container mt-5 d-flex justify-content-center">
-      <div className="card p-4" style={{ width: '500px' }}>
+      <div className="card p-4" style={{ width: '600px' }}>
         <h2 className="text-center mb-4">Update Customer Information</h2>
         {/* Customer information form */}
         <form onSubmit={handleSubmit}>
           <div className="form-group row">
-            <label htmlFor="customerId" className="col-sm-3 col-form-label">Customer ID:</label>
-            <div className="col-sm-9">
+            <label htmlFor="customerId" className="col-sm-4 col-form-label">Customer ID:</label>
+            <div className="col-sm-8">
               <input
                 type="text"
                 className="form-control"
@@ -82,8 +82,8 @@ const UpdateCustomer = () => {
             </div>
           </div>
           <div className="form-group row">
-            <label htmlFor="firstName" className="col-sm-3 col-form-label">First Name:</label>
-            <div className="col-sm-9">
+            <label htmlFor="firstName" className="col-sm-4 col-form-label">First Name:</label>
+            <div className="col-sm-8">
               <input
                 type="text"
                 className="form-control"
@@ -96,8 +96,8 @@ const UpdateCustomer = () => {
             </div>
           </div>
           <div className="form-group row">
-            <label htmlFor="lastName" className="col-sm-3 col-form-label">Last Name:</label>
-            <div className="col-sm-9">
+            <label htmlFor="lastName" className="col-sm-4 col-form-label">Last Name:</label>
+            <div className="col-sm-8">
               <input
                 type="text"
                 className="form-control"
@@ -110,8 +110,8 @@ const UpdateCustomer = () => {
             </div>
           </div>
           <div className="form-group row">
-            <label htmlFor="phone" className="col-sm-3 col-form-label">Phone Number:</label>
-            <div className="col-sm-9">
+            <label htmlFor="phone" className="col-sm-4 col-form-label">Phone Number:</label>
+            <div className="col-sm-8">
               <input
                 type="text"
                 className="form-control"
@@ -124,8 +124,8 @@ const UpdateCustomer = () => {
             </div>
           </div>
           <div className="form-group row">
-            <label htmlFor="email" className="col-sm-3 col-form-label">Email:</label>
-            <div className="col-sm-9">
+            <label htmlFor="email" className="col-sm-4 col-form-label">Email:</label>
+            <div className="col-sm-8">
               <input
                 type="email"
                 className="form-control"
@@ -138,17 +138,18 @@ const UpdateCustomer = () => {
             </div>
           </div>
           <div className="mt-3 d-flex justify-content-center">
-            <button type="submit" className="btn btn-primary mr-2">
+            <button type="submit" className="btn btn-primary me-2">
               Update Customer
             </button>
             <button
-              type="button"
-              className="btn btn-secondary"
+              type="submit"
+              className="btn btn-secondary ms-2"
               onClick={handleCancel}
             >
               Cancel
             </button>
           </div>
+
         </form>
       </div>
     </div>

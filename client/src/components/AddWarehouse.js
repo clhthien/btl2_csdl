@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+//import './AddWarehouse.css'; // Link to the CSS file for styling (optional)
 
 const AddWarehouse = () => {
   const [warehouse, setWarehouse] = useState({
     Ma_kho: '',
     Dia_chi: '',
-    Suc_chua: ''
+    Suc_chua_toi_da: '',
+    So_luong_kien_hang: ''
   });
   const navigate = useNavigate();
 
@@ -20,6 +22,12 @@ const AddWarehouse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Simple validation to ensure all fields are filled
+    if (!warehouse.Ma_kho || !warehouse.Dia_chi || !warehouse.Suc_chua_toi_da || !warehouse.So_luong_kien_hang) {
+      alert('Please fill out all the information.');
+      return;
+    }
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/khohang`, {
         method: 'POST',
@@ -30,72 +38,85 @@ const AddWarehouse = () => {
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        alert('Tạo kho hàng thành công!');
-        navigate('/warehouses'); // Điều hướng về danh sách kho hàng
+        alert('Warehouse created successfully!');
+        navigate('/warehouses');
       } else {
-        alert(data.message || 'Có lỗi xảy ra khi tạo kho hàng.');
+        alert(data.message || 'Error occurred while creating the warehouse.');
       }
     } catch (error) {
-      console.error('Lỗi khi tạo kho hàng:', error);
-      alert('Không thể kết nối đến máy chủ.');
+      console.error('Error when creating warehouse:', error);
+      alert('Unable to connect to the server.');
     }
   };
 
-  const handleCancel = () => {
-    navigate('/warehouses'); // Trở lại danh sách kho hàng mà không lưu thay đổi
-  };
-
   return (
-    <div className="container mt-5">
-      <h2>Thêm Kho Hàng</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Ma Kho:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ma_kho"
-            value={warehouse.Ma_kho}
-            onChange={handleChange}
-            required
-          />
+    <div className="container-fluid mt-3">
+      <h2 className="text-center mb-4">Add Warehouse</h2>
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <form onSubmit={handleSubmit} className="shadow-lg p-4 rounded border">
+            <div className="form-group row mb-3">
+              <label htmlFor="Ma_kho" className="col-md-4 col-form-label">Warehouse ID:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="Ma_kho"
+                  name="Ma_kho"
+                  value={warehouse.Ma_kho}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="Dia_chi" className="col-md-4 col-form-label">Address:</label>
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="Dia_chi"
+                  name="Dia_chi"
+                  value={warehouse.Dia_chi}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="Suc_chua_toi_da" className="col-md-4 col-form-label">Storage Capacity::</label>
+              <div className="col-md-8">
+                <input
+                  type="number"
+                  className="form-control"
+                  id="Suc_chua_toi_da"
+                  name="Suc_chua_toi_da"
+                  value={warehouse.Suc_chua_toi_da}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label htmlFor="So_luong_kien_hang" className="col-md-4 col-form-label">Number of Packages:</label>
+              <div className="col-md-8">
+                <input
+                  type="number"
+                  className="form-control"
+                  id="So_luong_kien_hang"
+                  name="So_luong_kien_hang"
+                  value={warehouse.So_luong_kien_hang}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary btn-block">Add Warehouse:</button>
+          </form>
         </div>
-        <div className="form-group">
-          <label>Địa Chỉ:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Dia_chi"
-            value={warehouse.Dia_chi}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Sức Chứa:</label>
-          <input
-            type="number"
-            className="form-control"
-            name="Suc_chua"
-            value={warehouse.Suc_chua}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mt-3">
-          <button type="submit" className="btn btn-primary">
-            Lưu Kho Hàng
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary ml-3"
-            onClick={handleCancel}
-          >
-            Hủy
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

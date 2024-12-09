@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const UpdateOrder = () => {
-  const { id } = useParams(); // Lấy id từ URL (Mã đơn đặt hàng)
-  const navigate = useNavigate(); // Điều hướng trang
+  const { id } = useParams(); // Get the order ID from the URL
+  const navigate = useNavigate(); // For navigation after submission
   const [order, setOrder] = useState({
     Ma_ddh: '',
     Sdt_nguoi_gui: '',
@@ -11,12 +11,12 @@ const UpdateOrder = () => {
     Ma_khach_hang: ''
   });
 
+  // Fetch order details when the component mounts
   useEffect(() => {
-    // Fetch thông tin đơn đặt hàng từ API
     fetch(process.env.REACT_APP_API_URL + '/dondathang/' + id)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data); // Kiểm tra dữ liệu từ API
+        console.log(data); // Check if the API returns the correct data
         setOrder(data);
       })
       .catch((error) => console.error('Error fetching order:', error));
@@ -33,7 +33,7 @@ const UpdateOrder = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Gửi yêu cầu PUT để cập nhật thông tin đơn đặt hàng
+    // Send PUT request to update the order
     try {
       const response = await fetch(process.env.REACT_APP_API_URL + '/dondathang/' + id, {
         method: 'PUT',
@@ -46,83 +46,92 @@ const UpdateOrder = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Cập nhật đơn đặt hàng thành công!');
-        navigate('/orders'); // Điều hướng về danh sách đơn đặt hàng sau khi cập nhật
+        alert('Order updated successfully!');
+        navigate('/orders'); // Navigate to the orders list after updating
       } else {
-        alert(data.message || 'Có lỗi xảy ra khi cập nhật đơn đặt hàng.');
+        alert(data.message || 'An error occurred while updating the order.');
       }
     } catch (error) {
-      console.error('Lỗi kết nối:', error);
-      alert('Không thể kết nối tới máy chủ.');
+      console.error('Connection error:', error);
+      alert('Could not connect to the server.');
     }
   };
 
   const handleCancel = () => {
-    navigate('/orders'); // Trở về danh sách đơn đặt hàng mà không thay đổi gì
+    navigate('/orders'); // Navigate back to the orders list without saving
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Cập nhật thông tin Đơn Đặt Hàng</h2>
-      {/* Form nhập thông tin đơn đặt hàng */}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Ma_ddh:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ma_ddh"
-            value={order.Ma_ddh}
-            onChange={handleChange}
-            disabled
-          />
-        </div>
-        <div className="form-group">
-          <label>Số điện thoại người gửi:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Sdt_nguoi_gui"
-            value={order.Sdt_nguoi_gui}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Số điện thoại người nhận:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Sdt_nguoi_nhan"
-            value={order.Sdt_nguoi_nhan}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Mã khách hàng:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ma_khach_hang"
-            value={order.Ma_khach_hang}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mt-3">
-          <button type="submit" className="btn btn-primary">
-            Cập nhật đơn đặt hàng
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary ml-3"
-            onClick={handleCancel}
-          >
-            Hủy
-          </button>
-        </div>
-      </form>
+    <div className="container mt-5 d-flex justify-content-center">
+      <div className="card p-4" style={{ width: '600px' }}>
+        <h2 className="text-center mb-4">Update Order Information</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group row">
+            <label htmlFor="customerId" className="col-sm-5 col-form-label">Order ID:</label>
+            <div className="col-sm-7">
+              <input
+                type="text"
+                className="form-control"
+                name="Ma_ddh"
+                value={order.Ma_ddh}
+                onChange={handleChange}
+                disabled // Disable the order ID field
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label">Sender's Phone Number:</label>
+            <div className="col-sm-7">
+              <input
+                type="text"
+                className="form-control"
+                name="Sdt_nguoi_gui"
+                value={order.Sdt_nguoi_gui}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label">Receiver's Phone Number:</label>
+            <div className="col-sm-7">
+              <input
+                type="text"
+                className="form-control"
+                name="Sdt_nguoi_nhan"
+                value={order.Sdt_nguoi_nhan}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-5 col-form-label">Customer ID:</label>
+            <div className="col-sm-7">
+              <input
+                type="text"
+                className="form-control"
+                name="Ma_khach_hang"
+                value={order.Ma_khach_hang}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="mt-3 d-flex justify-content-center">
+            <button type="submit" className="btn btn-primary me-2">
+              Update Order
+            </button>
+            <button
+              type="submit"
+              className="btn btn-secondary ms-2"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

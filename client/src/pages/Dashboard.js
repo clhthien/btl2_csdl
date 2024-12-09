@@ -55,65 +55,80 @@ const Dashboard = () => {
       {loading ? (
         <div className="loading">Loading...</div>
       ) : (
-        <div className="row">
-          {/* Card hiển thị số lượng khách hàng với link chuyển hướng */}
-          <div className="col-md-3">
-            <Link to="/customers" className="card-link">
-              <div className="card hover-card">
-                <div className="card-body">
-                  <h5 className="card-title">
-                    <FaUsers /> Total Customers
-                  </h5>
-                  <p className="card-text">{customers.length}</p>
+        <>
+          {/* Hàng đầu tiên chứa Total Customers và Total Orders */}
+          <div className="row dashboard-cards">
+            {/* Card hiển thị số lượng khách hàng với link chuyển hướng */}
+            <div className="col-md-4">
+              <Link to="/customers" className="card-link">
+                <div className="card hover-card">
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      <FaUsers /> Total Customers
+                    </h5>
+                    <p className="card-text" style={{ fontSize: '40px' }}>
+                      {customers.length}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
+
+            {/* Card hiển thị số lượng đơn đặt hàng */}
+            <div className="col-md-4">
+              <Link to="/orders" className="card-link">
+                <div className="card hover-card">
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      <FaListUl /> Total Orders
+                    </h5>
+                    <p className="card-text" style={{ fontSize: '40px' }}>
+                      {orders.length}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            </div>
           </div>
 
-          {/* Card hiển thị số lượng đơn đặt hàng */}
-          <div className="col-md-3">
-          <Link to="/orders" className="card-link">
-            <div className="card hover-card">
-              <div className="card-body">
-                <h5 className="card-title">
-                  <FaListUl /> Total Orders
-                </h5>
-                <p className="card-text">{orders.length}</p>
-              </div>
+          {/* Hàng thứ hai chứa Total Packages và Total Warehouses */}
+          <div className="row" style={{ marginTop: '30px' }}>
+            {/* Card hiển thị số lượng kiện hàng */}
+            <div className="col-md-4">
+              <Link to="/packages" className="card-link">
+                <div className="card hover-card">
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      <FaBox /> Total Packages
+                    </h5>
+                    <p className="card-text" style={{ fontSize: '40px' }}>
+                      {items.length}
+                    </p>
+                  </div>
+                </div>
+              </Link>
             </div>
-            </Link>
-          </div>
 
-          {/* Card hiển thị số lượng kiện hàng */}
-          <div className="col-md-3">
-          <Link to="/packages" className="card-link">
-            <div className="card hover-card">
-              <div className="card-body">
-                <h5 className="card-title">
-                  <FaBox /> Total Packages
-                </h5>
-                <p className="card-text">{items.length}</p>
-              </div>
+            {/* Card hiển thị số lượng kho hàng */}
+            <div className="col-md-4">
+              <Link to="/warehouses" className="card-link">
+                <div className="card hover-card">
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      <FaStoreAlt /> Total Warehouses
+                    </h5>
+                    <p className="card-text" style={{ fontSize: '40px' }}>
+                      {warehouses.length}
+                    </p>
+                  </div>
+                </div>
+              </Link>
             </div>
-            </Link>
           </div>
-
-          {/* Card hiển thị số lượng kho hàng */}
-          <div className="col-md-3">
-          <Link to="/warehouses" className="card-link">
-            <div className="card hover-card">
-              <div className="card-body">
-                <h5 className="card-title">
-                  <FaStoreAlt /> Total Warehouses
-                </h5>
-                <p className="card-text">{warehouses.length}</p>
-              </div>
-            </div>
-            </Link>
-          </div>
-        </div>
+        </>
       )}
     </div>
+
   );
 };
 

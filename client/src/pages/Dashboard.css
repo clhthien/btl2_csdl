@@ -1,10 +1,14 @@
 .container {
-    margin-top: 50px;
+    margin-top: 0px;
   }
   
   .dashboard-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 60px;
+  }
+
+  .dashboard-cards {
+    margin-top: 60px;
   }
   
   .card {
@@ -41,7 +45,7 @@
     color: #007bff;
   }
   .card-link {
-    text-decoration: none; /* Xóa gạch chân mặc định */
+    text-decoration: none;
   }
   
   .hover-card {
@@ -54,7 +58,7 @@
   }
   
   .card-body {
-    cursor: pointer; /* Thay đổi con trỏ khi rê chuột vào */
+    cursor: pointer;
   }
   
   .card-title {
@@ -63,5 +67,5 @@
   
   .card-text {
     font-size: 1em;
-    margin-top: 10px;
+    margin-top: 20px;
   }

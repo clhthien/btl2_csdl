@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSort } from 'react-icons/fa';
+//import './PackagesList.css';
 
 const PackagesList = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortPackageID, setSortPackageID] = useState('asc');
+  const [sortPackagePrice, setSortPackagePrice] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [packagesPerPage] = useState(5);
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ const PackagesList = () => {
       });
   }, []);
 
+  // Delete package
   const deletePackage = (id) => {
     fetch(process.env.REACT_APP_API_URL + '/kienhang/' + id, {
       method: 'DELETE',
@@ -38,52 +41,66 @@ const PackagesList = () => {
       .catch((error) => console.error('Error deleting package:', error));
   };
 
+  // Update package
   const updatePackage = (id) => {
     navigate(`/packages/update/${id}`);
   };
 
+  // Handle search query change
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to page 1 when search query changes
   };
 
-  const handleSort = (field) => {
-    const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortOrder(newSortOrder);
+  // Handle sorting by field
+  const handleSort = (field, sortOrder) => {
     const sortedPackages = [...packages].sort((a, b) => {
-      if (a[field] < b[field]) return newSortOrder === 'asc' ? -1 : 1;
-      if (a[field] > b[field]) return newSortOrder === 'asc' ? 1 : -1;
+      if (a[field] < b[field]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[field] > b[field]) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
     setPackages(sortedPackages);
   };
 
+  // Filter packages based on search query
   const filteredPackages = packages.filter((pkg) => {
     const maKih = pkg.Ma_kih ? pkg.Ma_kih.toLowerCase() : '';
     const loaiHang = pkg.Loai_hang ? pkg.Loai_hang.toLowerCase() : '';
+    const maDDH = pkg.Ma_ddh ? pkg.Ma_ddh.toLowerCase() : '';
+    const kichThuoc = pkg.Kich_thuoc ? pkg.Kich_thuoc.toLowerCase() : '';
+    const gtKienHang = pkg.Gt_kien_hang ? pkg.Gt_kien_hang.toLowerCase() : '';
+    const canNang = pkg.Can_nang ? pkg.Can_nang.toLowerCase() : '';
+    const maKho = pkg.Ma_kho ? pkg.Ma_kho.toLowerCase() : '';
     return (
       maKih.includes(searchQuery.toLowerCase()) ||
-      loaiHang.includes(searchQuery.toLowerCase())
+      loaiHang.includes(searchQuery.toLowerCase()) ||
+      maDDH.includes(searchQuery.toLowerCase()) ||
+      kichThuoc.includes(searchQuery.toLowerCase()) ||
+      gtKienHang.includes(searchQuery.toLowerCase()) ||
+      canNang.includes(searchQuery.toLowerCase()) ||
+      maKho.includes(searchQuery.toLowerCase())
     );
   });
 
+  // Pagination logic
   const indexOfLastPackage = currentPage * packagesPerPage;
   const indexOfFirstPackage = indexOfLastPackage - packagesPerPage;
   const currentPackages = filteredPackages.slice(indexOfFirstPackage, indexOfLastPackage);
 
+  // Pagination click
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const totalPages = Math.ceil(filteredPackages.length / packagesPerPage);
 
   return (
     <div className="container mt-5">
-      <h1>Danh sách Gói Hàng</h1>
-      
+      <h1>Package List</h1>
+
       <div className="mb-3">
         <input
           type="text"
           className="form-control"
-          placeholder="Tìm kiếm gói hàng"
+          placeholder="Search packages"
           value={searchQuery}
           onChange={handleSearch}
         />
@@ -96,27 +113,41 @@ const PackagesList = () => {
           <thead>
             <tr>
               <th>
-                <button className="btn btn-link" onClick={() => handleSort('Ma_kih')}>
-                  Mã gói {sortOrder === 'asc' ? '↑' : '↓'}
+                Package ID
+                <button className="btn btn-link"
+                  onClick={() => {
+                    const newPackage = sortPackageID === 'asc' ? 'desc' : 'asc';
+                    setSortPackageID(newPackage);
+                    handleSort('Ma_kih', newPackage);
+                  }}
+                >
+                  <FaSort />
                 </button>
               </th>
+              <th>Type</th>
+              <th>Size</th>
               <th>
-                  Loại hàng
+                Price
+                <button className="btn btn-link"
+                  onClick={() => {
+                    const newPackage = sortPackagePrice === 'asc' ? 'desc' : 'asc';
+                    setSortPackagePrice(newPackage);
+                    handleSort('Gt_kien_hang', newPackage);
+                  }}
+                >
+                  <FaSort />
+                </button>
               </th>
-              <th>
-                  Kích thước
-              </th>
-              <th>Giá kiện hàng</th>
-              <th>Khối lượng</th>
-              <th>Mã kho</th>
-              <th>Mã đơn đặt hàng</th>
-              <th>Thao tác</th>
+              <th>Weight</th>
+              <th>Warehouse ID</th>
+              <th>Order ID</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentPackages.length === 0 ? (
               <tr>
-                <td colSpan="8">Không có gói hàng nào.</td>
+                <td colSpan="8">No packages found.</td>
               </tr>
             ) : (
               currentPackages.map((pkg) => (
@@ -145,15 +176,28 @@ const PackagesList = () => {
 
       <nav>
         <ul className="pagination">
-          <li className="page-item" onClick={() => paginate(currentPage - 1)} style={{ cursor: 'pointer' }} disabled={currentPage === 1}>
+          <li
+            className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)} // Disable "Prev" if on the first page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Prev</span>
           </li>
           {[...Array(totalPages)].map((_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`} onClick={() => paginate(index + 1)} style={{ cursor: 'pointer' }}>
+            <li
+              key={index}
+              className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+              onClick={() => paginate(index + 1)}
+              style={{ cursor: 'pointer' }}
+            >
               <span className="page-link">{index + 1}</span>
             </li>
           ))}
-          <li className="page-item" onClick={() => paginate(currentPage + 1)} style={{ cursor: 'pointer' }} disabled={currentPage === totalPages}>
+          <li
+            className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
+            onClick={() => currentPage < totalPages && paginate(currentPage + 1)} // Disable "Next" if on the last page
+            style={{ cursor: 'pointer' }}
+          >
             <span className="page-link">Next</span>
           </li>
         </ul>

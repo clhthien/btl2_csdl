@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const UpdatePackage = () => {
-  const { id } = useParams(); // Lấy id từ URL
+  const { id } = useParams(); // Get the ID from the URL
   const navigate = useNavigate();
   const [pkg, setPkg] = useState({
-    Ma_goi: '',
-    Ten_goi: '',
-    Gia: '',
-    Khoi_luong: ''
+    Ma_kih: '',
+    Kich_thuoc: '',
+    Loai_hang: '',
+    Can_nang: '',
+    Gt_kien_hang: '',
+    Ma_ddh: '',
+    Ma_kho: ''
   });
 
   useEffect(() => {
-    fetch(process.env.REACT_APP_API_URL + '/packages/' + id)
+    fetch(process.env.REACT_APP_API_URL + '/kienhang/' + id)
       .then((response) => response.json())
       .then((data) => setPkg(data))
       .catch((error) => console.error('Error fetching package:', error));
@@ -29,13 +32,13 @@ const UpdatePackage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!pkg.Ma_goi || !pkg.Ten_goi || !pkg.Gia || !pkg.Khoi_luong) {
-      alert('Vui lòng điền đầy đủ thông tin.');
+    if (!pkg.Ma_kih || !pkg.Kich_thuoc || !pkg.Loai_hang || !pkg.Can_nang || !pkg.Gt_kien_hang || !pkg.Ma_ddh || !pkg.Ma_kho) {
+      alert('Please fill in all fields.');
       return;
     }
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + '/packages/' + id, {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/kienhang/' + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -46,67 +49,140 @@ const UpdatePackage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Cập nhật gói hàng thành công!');
-        navigate('/packages');
+        alert('Package updated successfully!');
+        navigate('/packages'); // Navigate to the package list after updating
       } else {
-        alert(data.message || 'Có lỗi xảy ra khi cập nhật gói hàng.');
+        alert(data.message || 'An error occurred while updating the package.');
       }
     } catch (error) {
-      console.error('Lỗi kết nối:', error);
-      alert('Không thể kết nối tới máy chủ.');
+      console.error('Connection error:', error);
+      alert('Could not connect to the server.');
     }
   };
 
+  const handleCancel = () => {
+    navigate('/packages'); // Navigate to the package list without making changes
+  };
+
   return (
-    <div className="container mt-5">
-      <h2>Cập nhật Gói Hàng</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Ma_goi:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ma_goi"
-            value={pkg.Ma_goi}
-            onChange={handleChange}
-            disabled
-          />
-        </div>
-        <div className="form-group">
-          <label>Tên gói:</label>
-          <input
-            type="text"
-            className="form-control"
-            name="Ten_goi"
-            value={pkg.Ten_goi}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Giá:</label>
-          <input
-            type="number"
-            className="form-control"
-            name="Gia"
-            value={pkg.Gia}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Khối lượng:</label>
-          <input
-            type="number"
-            className="form-control"
-            name="Khoi_luong"
-            value={pkg.Khoi_luong}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Cập nhật Gói</button>
-      </form>
+    <div className="container mt-5 d-flex justify-content-center">
+      <div className="card p-4" style={{ width: '600px' }}>
+        <h2 className="text-center mb-4">Update Package Information</h2>
+        {/* Package information form */}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group row">
+            <label htmlFor="packageId" className="col-sm-4 col-form-label">Package ID:</label>
+            <div className="col-sm-8">
+              <input
+                type="text"
+                className="form-control"
+                id="packageId"
+                name="Ma_kih"
+                value={pkg.Ma_kih}
+                onChange={handleChange}
+                disabled
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="size" className="col-sm-4 col-form-label">Size:</label>
+            <div className="col-sm-8">
+              <input
+                type="text"
+                className="form-control"
+                id="size"
+                name="Kich_thuoc"
+                value={pkg.Kich_thuoc}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="type" className="col-sm-4 col-form-label">Type:</label>
+            <div className="col-sm-8">
+              <input
+                type="text"
+                className="form-control"
+                id="type"
+                name="Loai_hang"
+                value={pkg.Loai_hang}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="weight" className="col-sm-4 col-form-label">Weight:</label>
+            <div className="col-sm-8">
+              <input
+                type="number"
+                className="form-control"
+                id="weight"
+                name="Can_nang"
+                value={pkg.Can_nang}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="unitPrice" className="col-sm-4 col-form-label">Unit Price:</label>
+            <div className="col-sm-8">
+              <input
+                type="number"
+                className="form-control"
+                id="unitPrice"
+                name="Gt_kien_hang"
+                value={pkg.Gt_kien_hang}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="orderId" className="col-sm-4 col-form-label">Order ID:</label>
+            <div className="col-sm-8">
+              <input
+                type="text"
+                className="form-control"
+                id="orderId"
+                name="Ma_ddh"
+                value={pkg.Ma_ddh}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label htmlFor="warehouseId" className="col-sm-4 col-form-label">Warehouse ID:</label>
+            <div className="col-sm-8">
+              <input
+                type="text"
+                className="form-control"
+                id="warehouseId"
+                name="Ma_kho"
+                value={pkg.Ma_kho}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 d-flex justify-content-center">
+            <button type="submit" className="btn btn-primary me-2">
+              Update Package
+            </button>
+            <button
+              type="submit"
+              className="btn btn-secondary ms-2"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import UpdateWarehouse from './components/UpdateWarehouse';
 import Orders from './pages/Orders';
 import Packages from './pages/Packages';
 import Warehouses from './pages/Warehouses';
+import Advanced from './pages/Advanced';
 import Navbar from './components/Navbar';
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
             <Route path='/packages/update/:id' element={<UpdatePackage/>}/>
             <Route path="/warehouses" element={<Warehouses />} />
             <Route path='/warehouses/update/:id' element={<UpdateWarehouse/>}/>
+            <Route path="/advanced" element={<Advanced />} />
           </Routes>
         </div>
       </div>

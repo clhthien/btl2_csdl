@@ -39,6 +39,11 @@ const Navbar = () => {
                 Warehouses
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/advanced">
+                Advanced
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

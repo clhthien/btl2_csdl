@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:Ma_kih', async (req, res) => {
-  const { Ma_kih } = req.params;  // Lấy Ma_kih từ URL parameter
+  const { Ma_kih } = req.params; // Lấy mã kiện hàng từ URL parameter
   const { Kich_thuoc, Loai_hang, Can_nang, Gt_kien_hang, Ma_ddh, Ma_kho } = req.body;
 
   // Kiểm tra các trường bắt buộc
@@ -43,34 +43,30 @@ router.put('/:Ma_kih', async (req, res) => {
     return res.status(400).json({ message: 'Thiếu thông tin cần thiết để cập nhật!' });
   }
 
-  // Kiểm tra xem mã kiện hàng có tồn tại không
-  const checkMaKihQuery = 'SELECT * FROM kien_hang WHERE Ma_kih = ?';
-  const checkMaKhoQuery = 'SELECT * FROM kho_hang WHERE Ma_kho = ?';
   try {
-    const [existingMaKih] = await db.execute(checkMaKihQuery, [Ma_kih]);
-    if (existingMaKih.length === 0) {
-      return res.status(404).json({ message: 'Mã kiện hàng không tồn tại!' });
-    }
-
-    const [existingMaKho] = await db.execute(checkMaKhoQuery, [Ma_kho]);
-    if (existingMaKho.length === 0) {
-      return res.status(404).json({ message: 'Mã kho không tồn tại!' });
-    }
-
-    // Gọi stored procedure UpdateKienHang (giả sử bạn đã tạo stored procedure này trong DB)
+    // Gọi stored procedure `UpdateKienHang` để cập nhật kiện hàng
     const query = 'CALL UpdateKienHang(?, ?, ?, ?, ?, ?, ?)';
     await db.execute(query, [Ma_kih, Kich_thuoc, Loai_hang, Can_nang, Gt_kien_hang, Ma_ddh, Ma_kho]);
 
     // Trả về kết quả thành công
     res.status(200).json({
       message: 'Cập nhật kiện hàng thành công!',
-      kien_hang: { Ma_kih, Kich_thuoc, Loai_hang, Can_nang, Gt_kien_hang, Ma_ddh, Ma_kho }
+      kien_hang: {
+        Ma_kih,
+        Kich_thuoc,
+        Loai_hang,
+        Can_nang,
+        Gt_kien_hang,
+        Ma_ddh,
+        Ma_kho,
+      },
     });
   } catch (err) {
     console.error('Lỗi khi cập nhật kiện hàng:', err);
     res.status(500).json({ message: 'Có lỗi xảy ra khi cập nhật kiện hàng.' });
   }
 });
+
 
 router.get('/:Ma_kih', async (req, res) => {
   const { Ma_kih } = req.params;
@@ -158,6 +154,8 @@ router.delete('/:Ma_kih', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa kiện hàng.' });
   }
 });
+
+
 
 
 

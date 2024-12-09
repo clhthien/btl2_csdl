@@ -12,6 +12,8 @@ const CustomersList = () => {
   const [sortOrderLastName, setSortOrderLastName] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [customersPerPage] = useState(5);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +44,7 @@ const CustomersList = () => {
           alert(data.message);
         }
         setCustomers(customers.filter(customer => customer.Ma_khach_hang !== customerId));
+        setShowConfirmModal(false); // Đóng modal sau khi xóa
       })
       .catch((error) => console.error('Error deleting customer:', error));
   };
@@ -162,7 +165,13 @@ const CustomersList = () => {
                     <button className="btn btn-warning mr-2" onClick={() => updateCustomer(customer.Ma_khach_hang)}>
                       <FaEdit />
                     </button>
-                    <button className="btn btn-danger" onClick={() => deleteCustomer(customer.Ma_khach_hang)}>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        setCustomerToDelete(customer.Ma_khach_hang);
+                        setShowConfirmModal(true); // Hiển thị modal xác nhận xóa
+                      }}
+                    >
                       <FaTrash />
                     </button>
                   </td>
@@ -202,6 +211,41 @@ const CustomersList = () => {
           </li>
         </ul>
       </nav>
+
+      {/* Modal Confirm Delete */}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Delete</h5>
+              <button
+                type="button"
+                className="close"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to delete this customer?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => deleteCustomer(customerToDelete)}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,7 +26,7 @@ const AddOrder = () => {
     }
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + '/orders', {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/dondathang', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,13 +60,13 @@ const AddOrder = () => {
         <div className="col-md-8">
           <form onSubmit={handleSubmit} className="shadow-lg p-4 rounded border">
             <div className="form-group row mb-3">
-              <label htmlFor="orderId" className="col-md-4 col-form-label">Order ID:</label>
+              <label htmlFor="Ma_ddh" className="col-md-4 col-form-label">Order ID:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="orderId"
-                  name="orderId"
+                  id="Ma_ddh"
+                  name="Ma_ddh"
                   value={order.Ma_ddh}
                   onChange={handleChange}
                   required
@@ -75,13 +75,13 @@ const AddOrder = () => {
             </div>
 
             <div className="form-group row mb-3">
-              <label htmlFor="senderPhone" className="col-md-4 col-form-label">Sender's Phone:</label>
+              <label htmlFor="Sdt_nguoi_gui" className="col-md-4 col-form-label">Sender's Phone:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="senderPhone"
-                  name="senderPhone"
+                  id="Sdt_nguoi_gui"
+                  name="Sdt_nguoi_gui"
                   value={order.Sdt_nguoi_gui}
                   onChange={handleChange}
                   required
@@ -90,13 +90,13 @@ const AddOrder = () => {
             </div>
 
             <div className="form-group row mb-3">
-              <label htmlFor="recipientPhone" className="col-md-4 col-form-label">Recipient's Phone:</label>
+              <label htmlFor="Sdt_nguoi_nhan" className="col-md-4 col-form-label">Recipient's Phone:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="recipientPhone"
-                  name="recipientPhone"
+                  id="Sdt_nguoi_nhan"
+                  name="Sdt_nguoi_nhan"
                   value={order.Sdt_nguoi_nhan}
                   onChange={handleChange}
                   required
@@ -105,13 +105,13 @@ const AddOrder = () => {
             </div>
 
             <div className="form-group row mb-3">
-              <label htmlFor="customerId" className="col-md-4 col-form-label">Customer ID:</label>
+              <label htmlFor="Ma_khach_hang" className="col-md-4 col-form-label">Customer ID:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="customerId"
-                  name="customerId"
+                  id="Ma_khach_hang"
+                  name="Ma_khach_hang"
                   value={order.Ma_khach_hang}
                   onChange={handleChange}
                   required

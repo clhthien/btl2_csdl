@@ -19,7 +19,7 @@ const CustomerTotalPrice = () => {
 
     // Kiểm tra nếu giaTri rỗng hoặc không phải là số hợp lệ
     if (!giaTri || isNaN(giaTri)) {
-      setError('Giá trị không hợp lệ!');
+      setError('Invalid value!');
       return;
     }
 
@@ -40,7 +40,7 @@ const CustomerTotalPrice = () => {
       })
       .catch((error) => {
         console.error('Error fetching customers:', error);
-        setError('Có lỗi xảy ra khi lấy dữ liệu!'); // Hiển thị lỗi nếu có
+        setError('An error occurred while fetching data!'); // Hiển thị lỗi nếu có
         setLoading(false); // Tắt trạng thái tải dữ liệu
       });
   };
@@ -75,22 +75,22 @@ const CustomerTotalPrice = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Danh Sách Khách Hàng Theo Tổng Giá Trị</h2>
+      <h2>List of customers with total package value greater than the entered value</h2>
 
       {/* Form nhập giá trị */}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="giaTri">Nhập giá trị:</label>
+          <label htmlFor="giaTri">Enter value:</label>
           <input
             type="text"
             className="form-control"
             id="giaTri"
             value={giaTri}
-            onChange={(e) => setGiaTri(e.target.value)} // Cập nhật giá trị khi người dùng nhập
+            onChange={(e) => setGiaTri(e.target.value)}
           />
         </div>
         <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
-          {loading ? 'Đang Tải...' : 'Tìm Kiếm'}
+          {loading ? 'Loading...' : 'Search'}
         </button>
       </form>
 
@@ -103,7 +103,7 @@ const CustomerTotalPrice = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Tìm kiếm trong bảng"
+            placeholder="Search in table"
             value={searchQuery}
             onChange={handleSearch} // Cập nhật giá trị tìm kiếm
           />
@@ -116,7 +116,7 @@ const CustomerTotalPrice = () => {
             <thead>
               <tr>
                 <th>
-                  Ma Khach Hang
+                  Customer ID
                   <button
                     className="btn btn-link"
                     onClick={() => {
@@ -129,7 +129,7 @@ const CustomerTotalPrice = () => {
                   </button>
                 </th>
                 <th>
-                  Ho Ten
+                  Full Name
                   <button
                     className="btn btn-link"
                     onClick={() => {
@@ -142,7 +142,7 @@ const CustomerTotalPrice = () => {
                   </button>
                 </th>
                 <th>
-                  Tong Gia Tri
+                  Total Value
                   <button
                     className="btn btn-link"
                     onClick={() => {
@@ -171,7 +171,7 @@ const CustomerTotalPrice = () => {
 
       {/* Nếu không có kết quả */}
       {customers.length === 0 && !loading && !error && (
-        <div className="alert alert-info mt-3">Không có khách hàng nào với tổng giá trị đủ điều kiện!</div>
+        <div className="alert alert-info mt-3">No customers meet the total value criteria!</div>
       )}
     </div>
   );

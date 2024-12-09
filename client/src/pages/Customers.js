@@ -38,7 +38,7 @@ const Customers = () => {
               className="list-group-item list-group-item-action"
               onClick={() => setActiveComponent('total')}
             >
-              Total Price
+              Total Value of The Package
             </button>
           </div>
         </div>

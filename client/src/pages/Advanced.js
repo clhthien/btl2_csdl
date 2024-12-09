@@ -18,7 +18,7 @@ const Advanced = () => {
   // Hàm gọi API để lấy số lượng
   const fetchItemCount = async () => {
     if (!maKho || !loaiHang) {
-      alert("Vui lòng nhập đầy đủ thông tin Mã kho và Loại hàng!");
+      alert("Please enter complete information for Warehouse ID and Item Type!");
       return;
     }
 
@@ -30,7 +30,7 @@ const Advanced = () => {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Lỗi khi lấy dữ liệu');
+        throw new Error(errorData.message || 'Error fetching data!');
       }
 
       const data = await response.json();
@@ -45,7 +45,7 @@ const Advanced = () => {
   // Hàm gọi API để tính tổng giá trị kiện hàng theo khách hàng
   const fetchTotalValue = async () => {
     if (!maKhachHang) {
-      alert("Vui lòng nhập mã khách hàng!");
+      alert("Please enter the customer ID!");
       return;
     }
 
@@ -53,11 +53,11 @@ const Advanced = () => {
     setErrorTotalValue(null);
 
     try {
-      const response = await fetch(`http://localhost:3001/api/nangcao/total-value/${maKhachHang}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/nangcao/total-value/${maKhachHang}`);
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Lỗi khi lấy dữ liệu');
+        throw new Error(errorData.message || 'Error fetching data');
       }
 
       const data = await response.json();
@@ -71,13 +71,13 @@ const Advanced = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Tìm Kiếm Nâng Cao</h2>
+      <h2 className="mb-4">Advanced Search</h2>
       
       <div className="row">
         {/* Cột bên trái: Tính năng tìm kiếm số lượng */}
         <div className="col-md-6">
           <div className="card p-4 mb-4">
-            <h4 className="mb-5">Số Lượng Kiện Hàng Trong Kho Hàng</h4>
+            <h4 className="mb-5">Quantity of Packages in the Warehouse</h4>
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
@@ -85,39 +85,39 @@ const Advanced = () => {
               }}
             >
               <div className="mb-3 text-center">
-                <label className="form-label">Mã Kho:</label>
+                <label className="form-label">Warehouse ID:</label>
                 <input
                   type="text"
                   className="form-control mx-auto"
                   value={maKho}
                   onChange={(e) => setMaKho(e.target.value)}
-                  placeholder="Nhập Mã Kho"
+                  placeholder="Enter Warehouse ID"
                   required
                 />
               </div>
               
               <div className="mb-3">
-                <label className="form-label">Loại Hàng:</label>
+                <label className="form-label">Package Type:</label>
                 <select
                   className="form-select w-auto mx-auto"
                   value={loaiHang}
                   onChange={(e) => setLoaiHang(e.target.value)}
                   required
                 >
-                  <option value="">Chọn Loại Hàng</option>
+                  <option value="">Select Item Type</option>
                   <option value="Thường">Thường</option>
-                  <option value="Dễ vỡ">Dễ vỡ</option>
+                  <option value="Dễ vỡ">Dễ vỡ </option>
                 </select>
               </div>
 
-              <button type="submit" className="btn btn-primary">Tìm Kiếm</button>
+              <button type="submit" className="btn btn-primary">Search</button>
             </form>
 
             {loadingItemCount && <div className="mt-3">Loading...</div>}
             {errorItemCount && <div className="mt-3 text-danger">Error: {errorItemCount}</div>}
             {soLuong !== null && !loadingItemCount && !errorItemCount && (
               <div className="mt-3">
-                <p className="fw-bold" style={{ fontSize: '1.2rem' }}>Số lượng kiện hàng:</p>
+                <p className="fw-bold" style={{ fontSize: '1.2rem' }}>Number of packages:</p>
                 <p className="display-4 text-success">{soLuong}</p>
               </div>
             )}
@@ -127,7 +127,7 @@ const Advanced = () => {
         {/* Cột bên phải: Tính năng tính tổng giá trị kiện hàng theo khách hàng */}
         <div className="col-md-6">
           <div className="card p-4 mb-4">
-            <h4 className="mb-5">Tổng Giá Trị Kiện Hàng Của Khách Hàng</h4>
+            <h4 className="mb-5">Total Value of Customer's Packages</h4>
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
@@ -135,25 +135,25 @@ const Advanced = () => {
               }}
             >
               <div className="mb-3">
-                <label className="form-label">Mã Khách Hàng:</label>
+                <label className="form-label">Customer ID:</label>
                 <input
                   type="text"
                   className="form-control mx-auto"
                   value={maKhachHang}
                   onChange={(e) => setMaKhachHang(e.target.value)}
-                  placeholder="Nhập Mã Khách Hàng"
+                  placeholder="Enter Customer ID"
                   required
                 />
               </div>
 
-              <button type="submit" className="btn btn-success">Tính Tổng Giá Trị</button>
+              <button type="submit" className="btn btn-success">Calculate Total Value</button>
             </form>
 
             {loadingTotalValue && <div className="mt-3">Loading...</div>}
             {errorTotalValue && <div className="mt-3 text-danger">Error: {errorTotalValue}</div>}
             {tongGiaTri !== null && !loadingTotalValue && !errorTotalValue && (
               <div className="mt-3">
-                <p className="fw-bold" style={{ fontSize: '1.2rem' }}>Tổng giá trị kiện hàng:</p>
+                <p className="fw-bold" style={{ fontSize: '1.2rem' }}>Total Package Value:</p>
                 <p className="display-4 text-success">{tongGiaTri}</p> {/* Làm nổi bật số lượng */}
               </div>
             )}

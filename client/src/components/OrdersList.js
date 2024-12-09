@@ -10,6 +10,8 @@ const OrdersList = () => {
   const [sortOrderMaKH, setSortOrderMaKH] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [ordersPerPage] = useState(5);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,6 +42,7 @@ const OrdersList = () => {
           alert(data.message); // Show success message when deleted
         }
         setOrders(orders.filter(order => order.Ma_ddh !== orderId)); // Update order list
+        setShowConfirmModal(false); // Close modal after deleting
       })
       .catch((error) => console.error('Error deleting order:', error));
   };
@@ -147,7 +150,13 @@ const OrdersList = () => {
                     <button className="btn btn-warning mr-2" onClick={() => updateOrder(order.Ma_ddh)}>
                       <FaEdit />
                     </button>
-                    <button className="btn btn-danger" onClick={() => deleteOrder(order.Ma_ddh)}>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        setOrderToDelete(order.Ma_ddh);
+                        setShowConfirmModal(true); // Show delete confirmation modal
+                      }}
+                    >
                       <FaTrash />
                     </button>
                   </td>
@@ -187,6 +196,41 @@ const OrdersList = () => {
           </li>
         </ul>
       </nav>
+
+      {/* Modal Confirm Delete */}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Delete</h5>
+              <button
+                type="button"
+                className="close"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to delete this order?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => deleteOrder(orderToDelete)}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

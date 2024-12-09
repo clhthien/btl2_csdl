@@ -21,6 +21,10 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
 
+  if (Sdt_nguoi_gui === Sdt_nguoi_nhan){
+    return res.status(400).json({ message: 'Số điện thoại người gửi và người nhận không được trùng nhau.'});
+  }
+
   // Kiểm tra mã khách hàng có tồn tại không
   const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
   try {
@@ -72,42 +76,47 @@ router.get('/:Ma_ddh', async (req, res) => {
 
 // 3. Cập nhật thông tin đơn hàng (PUT)
 router.put('/:Ma_ddh', async (req, res) => {
-  const { Ma_ddh } = req.params;
-  const { Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body;
+  const { Ma_ddh } = req.params; // Lấy mã đơn đặt hàng từ tham số URL
+  const { Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang } = req.body; // Lấy dữ liệu từ body request
 
+  // Kiểm tra xem các trường cần thiết có đầy đủ không
   if (!Sdt_nguoi_gui || !Sdt_nguoi_nhan || !Ma_khach_hang) {
-    return res.status(400).json({ message: 'Thiếu thông tin đơn hàng hoặc tuổi nhân viên!' });
+    return res.status(400).json({ message: 'Thiếu thông tin đơn hàng!' });
   }
+
+  // Kiểm tra định dạng số điện thoại
   if (!validatePhoneNumber(Sdt_nguoi_gui) || !validatePhoneNumber(Sdt_nguoi_nhan)) {
     return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
 
-  // Kiểm tra mã khách hàng có tồn tại không
-  const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
+  if (Sdt_nguoi_gui === Sdt_nguoi_nhan){
+    return res.status(400).json({ message: 'Số điện thoại người gửi và người nhận không được trùng nhau.'});
+  }
+
   try {
+    // Kiểm tra xem khách hàng có tồn tại không
+    const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
     const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
+
     if (existingMaKH.length === 0) {
       return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
     }
 
-    // Kiểm tra đơn hàng có tồn tại không
+    // Kiểm tra xem đơn hàng có tồn tại không
     const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
     const [existingData] = await db.execute(checkMaDDHQuery, [Ma_ddh]);
+
     if (existingData.length === 0) {
       return res.status(404).json({ message: 'Mã đơn hàng không tồn tại!' });
     }
 
-    // Cập nhật thông tin đơn hàng
-    const updateQuery = `
-      UPDATE don_dat_hang
-      SET Sdt_nguoi_gui = ?, Sdt_nguoi_nhan = ?, Ma_khach_hang = ?
-      WHERE Ma_ddh = ?
-    `;
-    await db.execute(updateQuery, [Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang, Ma_ddh]);
+    // Gọi stored procedure `UpdateDonDatHang` để cập nhật thông tin đơn đặt hàng
+    const updateQuery = 'CALL UpdateDonDatHang(?, ?, ?, ?)';
+    await db.execute(updateQuery, [Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang]);
 
     res.status(200).json({
       message: 'Cập nhật đơn hàng thành công!',
-      don_dat_hang: { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang}
+      don_dat_hang: { Ma_ddh, Sdt_nguoi_gui, Sdt_nguoi_nhan, Ma_khach_hang }
     });
   } catch (err) {
     console.error('Lỗi khi cập nhật đơn hàng:', err);
@@ -115,28 +124,29 @@ router.put('/:Ma_ddh', async (req, res) => {
   }
 });
 
+
 // 4. Xóa đơn hàng (DELETE)
 router.delete('/:Ma_ddh', async (req, res) => {
   const { Ma_ddh } = req.params;
 
-  // Kiểm tra đơn hàng có tồn tại không
-  const checkMaDDHQuery = 'SELECT * FROM don_dat_hang WHERE Ma_ddh = ?';
   try {
-    const [existingMaDDH] = await db.execute(checkMaDDHQuery, [Ma_ddh]);
-    if (existingMaDDH.length === 0) {
-      return res.status(404).json({ message: 'Mã đơn hàng không tồn tại!' });
-    }
+    // Gọi stored procedure `DeleteDonDatHang` để xóa đơn đặt hàng
+    const query = 'CALL DeleteDonDatHang(?)';
+    await db.execute(query, [Ma_ddh]);
 
-    // Xóa đơn hàng
-    const deleteQuery = 'DELETE FROM don_dat_hang WHERE Ma_ddh = ?';
-    await db.execute(deleteQuery, [Ma_ddh]);
-
-    res.status(200).json({ message: 'Xóa đơn hàng thành công!' });
+    res.status(200).json({ message: 'Xóa đơn đặt hàng thành công!' });
   } catch (err) {
-    console.error('Lỗi khi xóa đơn hàng:', err);
-    res.status(500).json({ message: 'Có lỗi xảy ra khi xóa đơn hàng.' });
+    console.error('Lỗi khi xóa đơn đặt hàng:', err);
+
+    // Xử lý lỗi nếu stored procedure gửi tín hiệu lỗi
+    if (err.sqlState === '45000') {
+      res.status(404).json({ message: err.sqlMessage });
+    } else {
+      res.status(500).json({ message: 'Có lỗi xảy ra khi xóa đơn đặt hàng.' });
+    }
   }
 });
+
 
 router.get('/', async (req, res) => {
   const query = 'SELECT * FROM don_dat_hang';  // Truy vấn lấy tất cả đơn đặt hàng
@@ -153,4 +163,5 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Có lỗi xảy ra khi truy vấn đơn hàng.' });
   }
 });
+
 module.exports = router;

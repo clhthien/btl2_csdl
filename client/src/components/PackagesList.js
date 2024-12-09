@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaSort } from 'react-icons/fa';
-//import './PackagesList.css';
 
 const PackagesList = () => {
   const [packages, setPackages] = useState([]);
@@ -11,6 +10,8 @@ const PackagesList = () => {
   const [sortPackagePrice, setSortPackagePrice] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [packagesPerPage] = useState(5);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [packageToDelete, setPackageToDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const PackagesList = () => {
           alert(data.message);
         }
         setPackages(packages.filter(pkg => pkg.Ma_kih !== id));
+        setShowConfirmModal(false); // Close the modal after delete
       })
       .catch((error) => console.error('Error deleting package:', error));
   };
@@ -163,7 +165,10 @@ const PackagesList = () => {
                     <button className="btn btn-warning mr-2" onClick={() => updatePackage(pkg.Ma_kih)}>
                       <FaEdit />
                     </button>
-                    <button className="btn btn-danger" onClick={() => deletePackage(pkg.Ma_kih)}>
+                    <button className="btn btn-danger" onClick={() => {
+                      setPackageToDelete(pkg.Ma_kih);
+                      setShowConfirmModal(true);
+                    }}>
                       <FaTrash />
                     </button>
                   </td>
@@ -174,11 +179,12 @@ const PackagesList = () => {
         </table>
       )}
 
+      {/* Pagination */}
       <nav>
         <ul className="pagination">
           <li
             className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}
-            onClick={() => currentPage > 1 && paginate(currentPage - 1)} // Disable "Prev" if on the first page
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
             style={{ cursor: 'pointer' }}
           >
             <span className="page-link">Prev</span>
@@ -195,13 +201,48 @@ const PackagesList = () => {
           ))}
           <li
             className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}
-            onClick={() => currentPage < totalPages && paginate(currentPage + 1)} // Disable "Next" if on the last page
+            onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
             style={{ cursor: 'pointer' }}
           >
             <span className="page-link">Next</span>
           </li>
         </ul>
       </nav>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Delete</h5>
+              <button
+                type="button"
+                className="close"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to delete this package?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => deletePackage(packageToDelete)}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

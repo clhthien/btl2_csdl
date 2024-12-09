@@ -21,13 +21,13 @@ const AddCustomer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!customer.customerCode || !customer.firstName || !customer.lastName || !customer.phone || !customer.email) {
+    if (!customer.Ma_khach_hang || !customer.Ho_ten_dem || !customer.Ten || !customer.SDT || !customer.Email) {
       alert('Please fill out all the information.');
       return;
     }
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + '/customers', {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/khachhang', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,13 +62,13 @@ const AddCustomer = () => {
         <div className="col-md-8">
           <form onSubmit={handleSubmit} className="shadow-lg p-4 rounded border">
             <div className="form-group row mb-3">
-              <label htmlFor="customerCode" className="col-md-4 col-form-label">Customer ID:</label>
+              <label htmlFor="Ma_khach_hang" className="col-md-4 col-form-label">Customer ID:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="customerCode"
-                  name="customerCode"
+                  id="Ma_khach_hang"
+                  name="Ma_khach_hang"
                   value={customer.Ma_khach_hang}
                   onChange={handleChange}
                   required
@@ -76,13 +76,13 @@ const AddCustomer = () => {
               </div>
             </div>
             <div className="form-group row mb-3">
-              <label htmlFor="firstName" className="col-md-4 col-form-label">First Name:</label>
+              <label htmlFor="Ho_ten_dem" className="col-md-4 col-form-label">First Name:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="firstName"
-                  name="firstName"
+                  id="Ho_ten_dem"
+                  name="Ho_ten_dem"
                   value={customer.Ho_ten_dem}
                   onChange={handleChange}
                   required
@@ -90,13 +90,13 @@ const AddCustomer = () => {
               </div>
             </div>
             <div className="form-group row mb-3">
-              <label htmlFor="lastName" className="col-md-4 col-form-label">Last Name:</label>
+              <label htmlFor="Ten" className="col-md-4 col-form-label">Last Name:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="lastName"
-                  name="lastName"
+                  id="Ten"
+                  name="Ten"
                   value={customer.Ten}
                   onChange={handleChange}
                   required
@@ -104,13 +104,13 @@ const AddCustomer = () => {
               </div>
             </div>
             <div className="form-group row mb-3">
-              <label htmlFor="phone" className="col-md-4 col-form-label">Phone Number:</label>
+              <label htmlFor="SDT" className="col-md-4 col-form-label">Phone Number:</label>
               <div className="col-md-8">
                 <input
                   type="text"
                   className="form-control"
-                  id="phone"
-                  name="phone"
+                  id="SDT"
+                  name="SDT"
                   value={customer.SDT}
                   onChange={handleChange}
                   required
@@ -118,13 +118,13 @@ const AddCustomer = () => {
               </div>
             </div>
             <div className="form-group row mb-3">
-              <label htmlFor="email" className="col-md-4 col-form-label">Email:</label>
+              <label htmlFor="Email" className="col-md-4 col-form-label">Email:</label>
               <div className="col-md-8">
                 <input
                   type="email"
                   className="form-control"
-                  id="email"
-                  name="email"
+                  id="Email"
+                  name="Email"
                   value={customer.Email}
                   onChange={handleChange}
                   required

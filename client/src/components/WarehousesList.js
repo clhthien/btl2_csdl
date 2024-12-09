@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaSort } from 'react-icons/fa';
 //import './WarehousesList.css';
+
 const WarehousesList = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,8 @@ const WarehousesList = () => {
   const [sortWarehouseNumber, setSortWarehouseNumber] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [warehousesPerPage] = useState(5);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [warehouseToDelete, setWarehouseToDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +45,7 @@ const WarehousesList = () => {
           alert(data.message); // Show success message when deleted
         }
         setWarehouses(warehouses.filter(warehouse => warehouse.Ma_kho !== warehouseId)); // Update warehouse list
+        setShowConfirmModal(false); // Close modal after deletion
       })
       .catch((error) => console.error('Error deleting warehouse:', error));
   };
@@ -172,7 +176,10 @@ const WarehousesList = () => {
                       <button className="btn btn-warning mr-2" onClick={() => updateWarehouse(warehouse.Ma_kho)}>
                         <FaEdit />
                       </button>
-                      <button className="btn btn-danger" onClick={() => deleteWarehouse(warehouse.Ma_kho)}>
+                      <button className="btn btn-danger" onClick={() => {
+                        setWarehouseToDelete(warehouse.Ma_kho);
+                        setShowConfirmModal(true);
+                      }}>
                         <FaTrash />
                       </button>
                     </td>
@@ -212,6 +219,45 @@ const WarehousesList = () => {
             </ul>
           </nav>
         </>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Delete</h5>
+              <button
+                type="button"
+                className="close"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to delete this warehouse?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  if (warehouseToDelete) {
+                    deleteWarehouse(warehouseToDelete);
+                  }
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

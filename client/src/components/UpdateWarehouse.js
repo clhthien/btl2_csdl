@@ -7,7 +7,7 @@ const UpdateWarehouse = () => {
   const [warehouse, setWarehouse] = useState({
     Ma_kho: '',
     Dia_chi: '',
-    Suc_chua: '',
+    Suc_chua_toi_da: '',
     So_luong_kien_hang: ''
   });
 
@@ -33,7 +33,7 @@ const UpdateWarehouse = () => {
     e.preventDefault();
 
     // Kiểm tra thông tin nhập vào
-    if (!warehouse.Ma_kho || !warehouse.Dia_chi || !warehouse.Suc_chua || !warehouse.So_luong_kien_hang) {
+    if (!warehouse.Ma_kho || !warehouse.Dia_chi || !warehouse.Suc_chua_toi_da || !warehouse.So_luong_kien_hang) {
       alert('Vui lòng điền đầy đủ thông tin.');
       return;
     }
@@ -111,8 +111,8 @@ const UpdateWarehouse = () => {
                 type="number"
                 className="form-control"
                 id="capacity"
-                name="Suc_chua"
-                value={warehouse.Suc_chua}
+                name="Suc_chua_toi_da"
+                value={warehouse.Suc_chua_toi_da}
                 onChange={handleChange}
                 required
               />

@@ -27,10 +27,10 @@ const PackageOfCustomer = () => {
     // Gọi API để lấy dữ liệu kiện hàng của khách hàng
     setLoading(true);
     setError(null); // Reset lỗi trước khi bắt đầu gọi API
-    fetch(`http://localhost:3001/api/kienhang/khachhang/${maKhachHang}`)
+    fetch(`${process.env.REACT_APP_API_URL}/kienhang/khachhang/${maKhachHang}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Không thể lấy dữ liệu');
+          throw new Error('Unable to fetch data.');
         }
         return response.json();
       })
@@ -76,25 +76,25 @@ const PackageOfCustomer = () => {
 
   return (
     <div className="container mt-5">
-      <h1>Danh sách kiện hàng của khách hàng</h1>
+      <h1>Customer's Package List</h1>
 
       {/* Form nhập Mã khách hàng */}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label htmlFor="maKhachHang" className="form-label">
-            Mã khách hàng
-          </label>
+          {/* <label htmlFor="maKhachHang" className="form-label">
+            Customer ID
+          </label> */}
           <input
             type="text"
             id="maKhachHang"
             className="form-control"
             value={maKhachHang}
             onChange={(e) => setMaKhachHang(e.target.value)} // Cập nhật mã khách hàng khi người dùng nhập
-            placeholder="Nhập mã khách hàng"
+            placeholder="Enter customer ID"
           />
         </div>
         <button type="submit" className="btn btn-primary">
-          Tìm kiếm
+          Search
         </button>
       </form>
 
@@ -107,7 +107,7 @@ const PackageOfCustomer = () => {
       ) : (
         <>
           {packages.length === 0 ? (
-            <p>Không có kiện hàng nào cho khách hàng này.</p>
+            <p>No packages found for this customer.</p>
           ) : (
             <>
               {/* Thanh tìm kiếm */}
@@ -115,7 +115,7 @@ const PackageOfCustomer = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Tìm kiếm trong bảng"
+                  placeholder="Search in table"
                   value={searchQuery}
                   onChange={handleSearch}
                 />

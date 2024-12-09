@@ -137,13 +137,15 @@ router.post('/', async (req, res) => {
 
 // Cập nhật thông tin khách hàng
 router.put('/:Ma_khach_hang', async (req, res) => {
-  const { Ma_khach_hang } = req.params;
-  const { Ho_ten_dem, Ten, SDT, Email } = req.body;
+  const { Ma_khach_hang } = req.params; // Lấy mã khách hàng từ URL parameter
+  const { Ho_ten_dem, Ten, SDT, Email } = req.body; // Lấy dữ liệu từ body request
 
+  // Kiểm tra xem các trường cần thiết có đầy đủ không
   if (!Ho_ten_dem || !Ten || !SDT || !Email) {
     return res.status(400).json({ message: 'Thiếu thông tin khách hàng!' });
   }
 
+  // Kiểm tra định dạng email và số điện thoại
   if (!validateEmail(Email)) {
     return res.status(400).json({ message: 'Email không hợp lệ!' });
   }
@@ -152,34 +154,12 @@ router.put('/:Ma_khach_hang', async (req, res) => {
     return res.status(400).json({ message: 'Số điện thoại không hợp lệ!' });
   }
 
-  const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
   try {
-    const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
-    if (existingMaKH.length === 0) {
-      return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
-    }
+    // Gọi stored procedure `UpdateKhachHang` để cập nhật thông tin khách hàng
+    const query = 'CALL UpdateKhachHang(?, ?, ?, ?, ?)';
+    await db.execute(query, [Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email]);
 
-    // Kiểm tra trùng số điện thoại và email
-    const checkSDTQuery = 'SELECT * FROM khach_hang WHERE SDT = ? AND Ma_khach_hang != ?';
-    const [existingSDT] = await db.execute(checkSDTQuery, [SDT, Ma_khach_hang]);
-    if (existingSDT.length > 0) {
-      return res.status(400).json({ message: 'Số điện thoại đã tồn tại!' });
-    }
-
-    const checkEmailQuery = 'SELECT * FROM khach_hang WHERE Email = ? AND Ma_khach_hang != ?';
-    const [existingEmail] = await db.execute(checkEmailQuery, [Email, Ma_khach_hang]);
-    if (existingEmail.length > 0) {
-      return res.status(400).json({ message: 'Email đã tồn tại!' });
-    }
-
-    // Cập nhật thông tin khách hàng
-    const updateQuery = `
-      UPDATE khach_hang
-      SET Ho_ten_dem = ?, Ten = ?, SDT = ?, Email = ?
-      WHERE Ma_khach_hang = ?
-    `;
-    await db.execute(updateQuery, [Ho_ten_dem, Ten, SDT, Email, Ma_khach_hang]);
-
+    // Trả về kết quả thành công
     res.status(200).json({
       message: 'Cập nhật khách hàng thành công!',
       customer: {
@@ -187,14 +167,19 @@ router.put('/:Ma_khach_hang', async (req, res) => {
         Ho_ten_dem,
         Ten,
         SDT,
-        Email
-      }
+        Email,
+      },
     });
   } catch (err) {
+    // Xử lý lỗi từ stored procedure
+    if (err.sqlState === '45000') {
+      return res.status(400).json({ message: err.sqlMessage }); // Lỗi do stored procedure gửi tín hiệu
+    }
     console.error('Lỗi khi cập nhật khách hàng:', err);
     res.status(500).json({ message: 'Có lỗi xảy ra khi cập nhật khách hàng.' });
   }
 });
+
 
 // Xóa khách hàng
 // Xóa khách hàng và các dữ liệu liên quan

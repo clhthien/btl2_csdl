@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import CustomersList from '../components/CustomersList';
 import AddCustomer from '../components/AddCustomer';
+import CustomerTotalPrice from '../components/CustomerTotalPrice';
 import './Customers.css'; // Import file CSS tùy chỉnh
 
 const Customers = () => {
   const [activeComponent, setActiveComponent] = useState('list'); // Manage which component is active
+
+  let componentToRender;
+  if (activeComponent === 'list') {
+    componentToRender = <CustomersList />;
+  } else if (activeComponent === 'add') {
+    componentToRender = <AddCustomer />;
+  } else if (activeComponent === 'total') {
+    componentToRender = <CustomerTotalPrice />;
+  }
 
   return (
     <div className="container mt-5">
@@ -24,15 +34,22 @@ const Customers = () => {
             >
               Add Customer
             </button>
+            <button
+              className="list-group-item list-group-item-action"
+              onClick={() => setActiveComponent('total')}
+            >
+              Total Price
+            </button>
           </div>
         </div>
         <div className="col-md-10">
           {/* Render corresponding component based on selection */}
-          {activeComponent === 'list' ? <CustomersList /> : <AddCustomer />}
+          {componentToRender}
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Customers;

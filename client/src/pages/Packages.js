@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import PackagesList from '../components/PackagesList';
 import AddPackage from '../components/AddPackage';
+import PackageOfCustomer from '../components/PackageOfCustomer';
 
 const Packages = () => {
   const [activeComponent, setActiveComponent] = useState('list');
+  let componentToRender;
+  if (activeComponent === 'list') {
+    componentToRender = <PackagesList />;
+  } else if (activeComponent === 'add') {
+    componentToRender = <AddPackage />;
+  } else if (activeComponent === 'total') {
+    componentToRender = <PackageOfCustomer />;
+  }
   return (
     <div className="container mt-5">
       <div className="row">
@@ -22,11 +31,16 @@ const Packages = () => {
             >
               Add Package
             </button>
+            <button
+              className="list-group-item list-group-item-action"
+              onClick={() => setActiveComponent('total')}
+            >
+              Search Customer
+            </button>
           </div>
         </div>
         <div className="col-md-10">
-          {/* Render component tương ứng với lựa chọn */}
-          {activeComponent === 'list' ? <PackagesList /> : <AddPackage />}
+          {componentToRender}
         </div>
       </div>
     </div>

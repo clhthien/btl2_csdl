@@ -49,6 +49,33 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Lấy danh sách khách hàng có tổng giá trị kiện hàng >= GiaTri
+router.get('/tonggiatri/:GiaTri', async (req, res) => {
+  const { GiaTri } = req.params;
+
+  // Kiểm tra tham số GiaTri
+  if (!GiaTri || isNaN(GiaTri)) {
+    return res.status(400).json({ message: 'Giá trị không hợp lệ!' });
+  }
+
+  try {
+    // Gọi stored procedure Lay_Khach_Hang_Tong_Gia_Tri
+    const query = 'CALL Lay_Khach_Hang_Tong_Gia_Tri(?)';
+    const [result] = await db.execute(query, [GiaTri]);
+
+    // Nếu không có kết quả, trả về thông báo
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Không có khách hàng nào với tổng giá trị đủ điều kiện!' });
+    }
+
+    // Trả về kết quả
+    res.status(200).json(result[0]);
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách khách hàng theo tổng giá trị:', err);
+    res.status(500).json({ message: 'Có lỗi xảy ra khi lấy danh sách khách hàng.' });
+  }
+});
+
 // Thêm khách hàng mới
 router.post('/', async (req, res) => {
   const { Ma_khach_hang, Ho_ten_dem, Ten, SDT, Email } = req.body;
@@ -170,25 +197,34 @@ router.put('/:Ma_khach_hang', async (req, res) => {
 });
 
 // Xóa khách hàng
+// Xóa khách hàng và các dữ liệu liên quan
 router.delete('/:Ma_khach_hang', async (req, res) => {
   const { Ma_khach_hang } = req.params;
 
-  const checkMaKHQuery = 'SELECT * FROM khach_hang WHERE Ma_khach_hang = ?';
+  // Kiểm tra nếu mã khách hàng không được cung cấp
+  if (!Ma_khach_hang) {
+    return res.status(400).json({ message: 'Thiếu mã khách hàng!' });
+  }
+
   try {
-    const [existingMaKH] = await db.execute(checkMaKHQuery, [Ma_khach_hang]);
-    if (existingMaKH.length === 0) {
-      return res.status(404).json({ message: 'Mã khách hàng không tồn tại!' });
-    }
+    // Gọi stored procedure DeleteKhachHang
+    const query = 'CALL DeleteKhachHang(?)';
+    await db.execute(query, [Ma_khach_hang]);
 
-    // Xóa khách hàng
-    const deleteQuery = 'DELETE FROM khach_hang WHERE Ma_khach_hang = ?';
-    await db.execute(deleteQuery, [Ma_khach_hang]);
-
-    res.status(200).json({ message: 'Xóa khách hàng thành công!' });
+    res.status(200).json({ message: 'Xóa khách hàng và các dữ liệu liên quan thành công!' });
   } catch (err) {
-    console.error('Lỗi khi xóa khách hàng:', err);
-    res.status(500).json({ message: 'Có lỗi xảy ra khi xóa khách hàng.' });
+    // Xử lý lỗi nếu stored procedure gửi tín hiệu lỗi
+    if (err.sqlState === '45000') {
+      res.status(404).json({ message: err.sqlMessage });
+    } else {
+      console.error('Lỗi khi xóa khách hàng:', err);
+      res.status(500).json({ message: 'Có lỗi xảy ra khi xóa khách hàng.' });
+    }
   }
 });
+
+
+
+
 
 module.exports = router;
